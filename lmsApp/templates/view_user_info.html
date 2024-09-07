@@ -1,0 +1,33 @@
+{% load static %} {% load humanize %}
+<style>
+    #uni_modal .modal-footer {
+        display: none
+    }
+    
+    #uni_modal .modal-sub-footer {
+        display: flex
+    }
+</style>
+<div class="container-fluid" id="e-details">
+    <div class="lh-1">
+        <dl>
+            <dt>Name</dt>
+            <dd class="ps-4">{{user_info.name}}</dd>
+            <dt>Address</dt>
+            <dd class="ps-4">{{user_info.address}}</dd>
+            <dt>Phone Number</dt>
+            <dd class="ps-4">{{user_info.phone_number}}</dd>
+            <dt>Email</dt>
+            <dd class="ps-4">{{user_info.email}}</dd>
+            <dt>Membership Type</dt>
+            <dd class="ps-4">{{user_info.membership_type}}</dd>
+            <dt>Join Date</dt>
+            <dd class="ps-4">{{user_info.join_date}}</dd>
+            <dd class="ps-4">
+                {% if user_info.status == '1' %}
+                <span class="badge badge-success bg-gradient bg-success px-3 rounded-pill bg-opacity-75 text-sm py-1">Active</span> {% else %}
+                <span class="badge badge-secondary bg-gradient bg-secondary px-3 rounded-pill bg-opacity-75 text-sm py-1">Inactive</span> {% endif %}
+            </dd>
+        </dl>
+    </div>
+</div>

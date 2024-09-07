@@ -1,0 +1,118 @@
+{% load static %}
+{% load tagger %}
+<div class="container-fluid">
+    <form action="" id="user-info-form">
+        <input type="hidden" name="id" value="{%  underscoreTag user_info '_key' as id %}{{id}}">
+        <div class="mb-3">
+            <label for="name" class="control-label">Name</label>
+            <input type="text" id="name" name="name" class="form-control form-control-sm rounded-0"
+                value="{{user_info.name}}" required>
+        </div>
+        <div class="mb-3">
+            <label for="address" class="control-label">Address</label>
+            <input type="text" id="address" name="address" class="form-control form-control-sm rounded-0"
+                value="{{user_info.address}}" required>
+        </div>
+        <div class="mb-3">
+            <label for="phone_number" class="control-label">Phone Number</label>
+            <input type="text" id="phone_number" name="phone_number" class="form-control form-control-sm rounded-0"
+                value="{{user_info.phone_number}}" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="control-label">Email</label>
+            <input type="text" id="email" name="email" class="form-control form-control-sm rounded-0"
+                value="{{user_info.email}}" required>
+        </div>
+        <div class="mb-3">
+            <label for="join_date" class="control-label">Join Date</label>
+            <input type="date" id="join_date" name="join_date" class="form-control form-control-sm rounded-0"
+                   value="{{ user_info.join_date }}" min="{% now 'Y-m-d' %}" required>
+        </div>               
+        <div class="mb-3">
+            <label for="membership_type" class="control-label">Membership Type</label>
+            <select type="text" id="membership_type" name="membership_type" class="form-select form-select-sm rounded-0"
+                required>
+                {% if user_info.membership_type == '1' %}
+                <option value="1" selected>Student</option>
+                {% else %}
+                <option value="1">Student</option>
+                {% endif %}
+                {% if user_info.membership_type == '2' %}
+                <option value="2" selected>Adult</option>
+                {% else %}
+                <option value="2">Adult</option>
+                {% endif %}
+                {% if user_info.membership_type == '3' %}
+                <option value="3" selected>Senior</option>
+                {% else %}
+                <option value="3">Senior</option>
+                {% endif %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="status" class="control-label">Status</label>
+            <select type="text" id="status" name="status" class="form-select form-select-sm rounded-0" required>
+                {% if user_info.status == '1' %}
+                <option value="1" selected>Active</option>
+                {% else %}
+                <option value="1">Active</option>
+                {% endif %}
+                {% if user_info.status == '2' %}
+                <option value="2" selected>Inactive</option>
+                {% else %}
+                <option value="2">Inactive</option>
+                {% endif %}
+            </select>
+        </div>
+    </form>
+</div>
+<script>
+    $(function () {
+        $('#user-info-form').submit(function (e) {
+            e.preventDefault();
+            var _this = $(this)
+            $('.err-msg').remove();
+            var el = $('<div>')
+            el.addClass("alert alert-danger err-msg")
+            el.hide()
+            if (_this[0].checkValidity() == false) {
+                _this[0].reportValidity();
+                return false;
+            }
+            start_loader();
+            $.ajax({
+                headers: {
+                    "X-CSRFToken": '{{csrf_token}}'
+                },
+                url: "{% url 'save-user-info' %}",
+                data: new FormData($(this)[0]),
+                cache: false,
+                contentType: false,
+                processData: false,
+                method: 'POST',
+                type: 'POST',
+                dataType: 'json',
+                error: err => {
+                    console.log(err)
+                    alert("An error occured", 'error');
+                    end_loader();
+                },
+                success: function (resp) {
+                    if (typeof resp == 'object' && resp.status == 'success') {
+                        location.reload()
+                    } else if (resp.status == 'failed' && !!resp.msg) {
+                        el.text(resp.msg)
+                    } else {
+                        el.text("An error occured", 'error');
+                        end_loader();
+                        console.err(resp)
+                    }
+                    _this.prepend(el)
+                    el.show('slow')
+                    $("html, body, .modal").scrollTop(0);
+                    end_loader()
+                }
+            })
+        })
+    })
+</script>
