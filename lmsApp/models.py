@@ -113,7 +113,7 @@ class UserInfo(models.Model):
     address = models.TextField()
     phone_number = models.CharField(max_length=15)
     email = models.EmailField(unique=True)
-    membership_type = models.CharField(max_length=3, choices=(('1','Student'), ('2','Adult'), ('3','Senior')), default = 1)
+    membership_type = models.CharField(max_length=3, choices=(('1','Student'), ('2','Adult'), ('3','Senior'), ('2','Teacher')), default = 1)
     join_date = models.DateField()
     status = models.CharField(max_length=2, choices=(('1','Active'), ('2','Inactive')), default = 1)
     delete_flag = models.IntegerField(default = 0)
