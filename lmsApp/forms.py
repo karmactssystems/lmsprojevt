@@ -288,7 +288,7 @@ class SaveUserInfo(forms.ModelForm):
 
     class Meta:
         model = models.UserInfo
-        fields = ('name', 'address', 'phone_number', 'email', 'membership_type', 'join_date', 'status', )
+        fields = ('name', 'address', 'phone_number', 'email', 'membership_type', 'join_date', 'status')
 
     def clean_name(self):
         name = self.cleaned_data['name']
