@@ -57,7 +57,9 @@ urlpatterns = [
     path('view_student/<int:pk>',views.view_student,name='view-student-pk'),
     path('save_student',views.save_student,name='save-student'),
     path('delete_student/<int:pk>',views.delete_student,name='delete-student'),
-    path('borrows',views.borrows,name='borrow-page'),
+
+
+    path('get_borrows',views.get_borrows,name='borrow-page'),
     path('manage_borrow',views.manage_borrow,name='manage-borrow'),
     path('manage_borrow/<int:pk>',views.manage_borrow,name='manage-borrow-pk'),
     path('view_borrow/<int:pk>',views.view_borrow,name='view-borrow-pk'),

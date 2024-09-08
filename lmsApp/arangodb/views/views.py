@@ -84,10 +84,9 @@ def get_count(collection_name, status=None):
 
 
 def get_teachers():
-    collection_name = 'Users'
+    collection_name = 'UseInfo'
     aql_query = f"""
     FOR user IN {collection_name}
-    FILTER user.user_type == 'Teachers'
     RETURN {{
         id: user._id,
         first_name: user.first_name,

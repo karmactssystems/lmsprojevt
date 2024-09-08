@@ -230,35 +230,7 @@ class UserForm(forms.Form):
     def clean_created_at(self):
         created_at = datetime.datetime.now()
         return created_at
-class SaveBorrow(forms.ModelForm):
-    student = forms.CharField(max_length=250)
-    book = forms.CharField(max_length=250)
-    borrowing_date = forms.DateField()
-    return_date = forms.DateField()
-    status = forms.CharField(max_length=2)
-    due_date = forms.DateField()
-    fines = forms.IntegerField()
-    user = forms.CharField(max_length=250)
 
-    class Meta:
-        model = models.Borrow
-        fields = ('student', 'book', 'borrowing_date', 'return_date', 'status', 'due_date', 'fines', 'user')
-
-    def clean_student(self):
-        student = int(self.data['student']) if (self.data['student']).isnumeric() else 0
-        try:
-            student = models.Students.objects.get(id = student)
-            return student
-        except:
-            raise forms.ValidationError("Invalid student.")
-            
-    def clean_book(self):
-        book = int(self.data['book']) if (self.data['book']).isnumeric() else 0
-        try:
-            book = models.Books.objects.get(id = book)
-            return book
-        except:
-            raise forms.ValidationError("Invalid Book.")
 
 
 class SaveTeachingMaterial(forms.ModelForm):
@@ -336,3 +308,39 @@ class SaveUserInfo(forms.ModelForm):
             return name
         
         raise forms.ValidationError("User Info name already exists in the database.")
+
+
+class SaveBorrow(forms.ModelForm):
+    book = forms.CharField(max_length=250)
+    borrowing_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    return_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    status = forms.CharField(max_length=2)
+    due_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    fines = forms.IntegerField()
+    user = forms.ChoiceField()  # This will be populated with UserInfo data
+
+    class Meta:
+        model = models.Borrow
+        fields = ('book', 'borrowing_date', 'return_date', 'status', 'due_date', 'fines', 'user')
+
+    def __init__(self, *args, **kwargs):
+        super(SaveBorrow, self).__init__(*args, **kwargs)
+        # Populate the user field with choices from the UserInfo collection in ArangoDB
+        users = [(user.id, user.username) for user in models.UserInfo.objects.all()]  # Assuming Django ORM mapping
+        self.fields['user'].choices = users
+
+    def clean_user(self):
+        user = int(self.data['user']) if (self.data['user']).isnumeric() else 0
+        try:
+            user = models.UserInfo.objects.get(id=user)
+            return user
+        except models.UserInfo.DoesNotExist:
+            raise forms.ValidationError("Invalid user.")
+
+    def clean_book(self):
+        book = int(self.data['book']) if (self.data['book']).isnumeric() else 0
+        try:
+            book = models.Books.objects.get(id=book)
+            return book
+        except models.Books.DoesNotExist:
+            raise forms.ValidationError("Invalid Book.")

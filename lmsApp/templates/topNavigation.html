@@ -45,9 +45,6 @@
                         <a class="nav-link" aria-current="page" href="{% url 'book-page' %}">Books</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="{% url 'student-page' %}">Users</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" aria-current="page" href="{% url 'borrow-page' %}">Borrowing Transactions</a>
                     </li>
                     <li class="nav-item">
@@ -57,7 +54,7 @@
                         <a class="nav-link" aria-current="page" href="{% url 'teaching-material-page' %}">Teaching Materials</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="{% url 'user-info-page' %}">User Information</a>
+                        <a class="nav-link" aria-current="page" href="{% url 'user-info-page' %}">Users</a>
                     </li>
                     {% if request.user.is_superuser %}
                     {% comment %} <li class="nav-item">

@@ -87,26 +87,6 @@ class Students(models.Model):
     def name(self):
         return str(f"{self.first_name}{' '+self.middle_name if not self.middle_name == '' else ''} {self.last_name}")
 
-class Borrow(models.Model):
-    student = models.ForeignKey(Students, on_delete= models.CASCADE, related_name="student_id_fk")
-    book = models.ForeignKey(Books, on_delete= models.CASCADE, related_name="book_id_fk")
-    borrowing_date = models.DateField()
-    return_date = models.DateField()
-    status = models.CharField(max_length=2, choices=(('1','Pending'), ('2','Returned')), default = 1)
-    date_added = models.DateTimeField(default = timezone.now)
-    date_created = models.DateTimeField(auto_now = True)
-    due_date = models.DateField(default = timezone.now)
-    fines = models.IntegerField(default=0)
-    user = models.ForeignKey(Students, on_delete=models.CASCADE, related_name="user_borrows", blank=True, null=True)
-
-    class Meta:
-        verbose_name_plural = "Borrowing Transactions"
-
-    def __str__(self):
-        return str(f"{self.student.code}")
-
-
-
 
 class Student(models.Model):
     first_name = models.CharField(max_length=100)
@@ -144,3 +124,22 @@ class UserInfo(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+class Borrow(models.Model):
+    # student = models.ForeignKey(Students, on_delete= models.CASCADE, related_name="student_id_fk")
+    book = models.ForeignKey(Books, on_delete= models.CASCADE, related_name="book_id_fk")
+    borrowing_date = models.DateField()
+    return_date = models.DateField()
+    status = models.CharField(max_length=2, choices=(('1','Pending'), ('2','Returned')), default = 1)
+    date_added = models.DateTimeField(default = timezone.now)
+    date_created = models.DateTimeField(auto_now = True)
+    due_date = models.DateField(default = timezone.now)
+    fines = models.IntegerField(default=0)
+    user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, related_name="user_borrows", blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = "Borrowing Transactions"
+
+    def __str__(self):
+        return str(f"{self.student.code}")

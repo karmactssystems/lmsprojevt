@@ -33,25 +33,6 @@
             </div>
             <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                 <div class="mb-3">
-                    <label for="student" class="control-label">Student</label>
-                    <select type="text" id="student" name="student" class="form-select form-select-sm rounded-0" required>
-                        {% if not borrow %}
-                        <option value="" selected disabled></option>
-                        {% else %}
-                        <option value="" disabled></option>
-                        {% endif %}
-                        {% for student in students %}
-                        {% if borrow.student.id == student.id %}
-                        <option value="{{student.id}}" selected>{{student}}</option>
-                        {% else %}
-                        <option value="{{student.id}}">{{student}}</option>
-                        {% endif %}
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                <div class="mb-3">
                     <label for="borrowing_date" class="control-label">Date Borrow</label>
                     <input type="date" id="borrowing_date" name="borrowing_date" class="form-control form-control-sm rounded-0" value="{% if borrow %}{{borrow.borrowing_date|date:'Y-m-d'}}{% else %}{% now 'Y-m-d' %}{% endif %}" required>
                 </div>
@@ -98,9 +79,9 @@
                         <option value="" selected disabled>Select a user</option>
                         {% for user in users %}
                             {% if borrow.user.id == user.id %}
-                                <option value="{{ user.id }}" selected>{{ user.first_name }} {{ user.last_name }}</option>
+                                <option value="{{ user.id }}" selected>{{ user.name }}</option>
                             {% else %}
-                                <option value="{{ user.id }}">{{ user.first_name }} {{ user.last_name }}</option>
+                                <option value="{{ user.id }}">{{ user.name }}</option>
                             {% endif %}
                         {% endfor %}
                     </select>                    
@@ -112,8 +93,8 @@
 <script>
     $(function() {
         $('#uni_modal').on('shown.bs.modal', function(){
-            $('#student').select2({
-                placeholder:"Please Select Student Here",
+            $('#user').select2({
+                placeholder:"Please Select User Here",
                 width:"100%",
                 dropdownParent:$('#uni_modal'),
                 selectionCssClass:"form-control form-control-sm rounded-0"

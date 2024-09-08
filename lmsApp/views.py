@@ -588,82 +588,121 @@ def delete_student(request, pk = None):
 
     return HttpResponse(json.dumps(resp), content_type="application/json")
 
+
+
 @login_required
-def borrows(request):
+def get_borrows(request):
     context = context_data(request)
     context['page'] = 'borrow'
-    context['page_title'] = "Borrowing Transaction List"
-    context['borrows'] = []
+    context['page_title'] = "Borrowing Transaction"
+    
+    # Assuming 'Category' is the ArangoDB collection name
+    context['borrows'] = get_all_items('Borrow')
+    # return context['category']
     return render(request, 'borrows.html', context)
+
 
 @login_required
 def save_borrow(request):
-    resp = { 'status': 'failed', 'msg' : '' }
-    if request.method == 'POST':
-        post = request.POST
-        if not post['id'] == '':
-            borrow = models.Borrow.objects.get(id = post['id'])
-            form = forms.SaveBorrow(request.POST, instance=borrow)
-        else:
-            form = forms.SaveBorrow(request.POST) 
+    resp = {'status': 'failed', 'msg': ''}
 
+    if request.method == 'POST':
+        form = forms.SaveBorrow(request.POST)  # Include request.FILES
         if form.is_valid():
-            form.save()
-            if post['id'] == '':
-                messages.success(request, "Borrowing Transaction has been saved successfully.")
+            print(request.POST, "request.POST")
+            data = form.cleaned_data
+            category_id = request.POST.get('id', '')
+            if category_id:
+                update_item_by_id('Borrow', category_id, data)  # Update the existing document
+                messages.success(request, "Borrow Transaction has been updated successfully.")
             else:
-                messages.success(request, "Borrowing Transaction has been updated successfully.")
+                create_item('Borrow', data)  # Create a new document
+                messages.success(request, "Borrow Transaction has been saved successfully.")
+
             resp['status'] = 'success'
         else:
             for field in form:
                 for error in field.errors:
-                    if not resp['msg'] == '':
+                    if not resp['msg']:
                         resp['msg'] += str('<br/>')
                     resp['msg'] += str(f'[{field.name}] {error}')
     else:
-         resp['msg'] = "There's no data sent on the request"
+        resp['msg'] = "There's no data sent on the request"
 
     return HttpResponse(json.dumps(resp), content_type="application/json")
+
+
+@login_required
+def manage_borrow(request, pk=None):
+    context = context_data(request)
+    context['page'] = 'manage_borrow'
+    context['page_title'] = 'Manage User Information'
+    
+    if pk is None:
+        context['borrow'] = {}
+    else:
+        user_info = get_item_by_id("Borrow", pk)
+        if 'due_date' in user_info:
+            # Ensure join_date is in YYYY-MM-DD format
+            try:
+                due_date = datetime.strptime(user_info['due_date'], '%Y-%m-%d').strftime('%Y-%m-%d')
+            except ValueError:
+                due_date = ''  # or handle the error appropriately
+            user_info['due_date'] = due_date
+        if 'borrowing_date' in user_info:
+            # Ensure join_date is in YYYY-MM-DD format
+            try:
+                borrowing_date = datetime.strptime(user_info['borrowing_date'], '%Y-%m-%d').strftime('%Y-%m-%d')
+            except ValueError:
+                borrowing_date = ''  # or handle the error appropriately
+            user_info['borrowing_date'] = borrowing_date
+        if 'return_date' in user_info:
+            # Ensure join_date is in YYYY-MM-DD format
+            try:
+                return_date = datetime.strptime(user_info['return_date'], '%Y-%m-%d').strftime('%Y-%m-%d')
+            except ValueError:
+                return_date = ''  # or handle the error appropriately
+            user_info['return_date'] = return_date
+        context['borrow'] = user_info
+        context['users'] = get_user_info()
+        print(context['borrow'])
+    
+    return render(request, 'manage_borrow.html', context)
+
 
 @login_required
 def view_borrow(request, pk = None):
     context = context_data(request)
     context['page'] = 'view_borrow'
-    context['page_title'] = 'View Transaction Details'
+    context['page_title'] = 'View User Information'
     if pk is None:
         context['borrow'] = {}
     else:
-        context['borrow'] = models.Borrow.objects.get(id=pk)
-    
+        context['borrow'] = get_item_by_id("Borrow",pk)
     return render(request, 'view_borrow.html', context)
 
 @login_required
-def manage_borrow(request, pk = None):
-    context = context_data(request)
-    context['page'] = 'manage_borrow'
-    context['page_title'] = 'Manage Transaction Details'
-    if pk is None:
-        context['borrow'] = {}
-    else:
-        context['borrow'] = models.Borrow.objects.get(id=pk)
-    context['students'] = models.Students.objects.filter(delete_flag = 0, status = 1).all()
-    context['books'] = models.Books.objects.filter(delete_flag = 0, status = 1).all()
-    return render(request, 'manage_borrow.html', context)
+def delete_borrow(request, pk=None):
+    resp = {'status': 'failed', 'msg': ''}
 
-@login_required
-def delete_borrow(request, pk = None):
-    resp = { 'status' : 'failed', 'msg':''}
-    if pk is None:
-        resp['msg'] = 'Transaction ID is invalid'
+    print(f"Delete request for Borrow ID: {pk}")  # Debugging: print the ID to be deleted
+    
+    # Check if pk is valid
+    if pk is None or pk == 'None':
+        resp['msg'] = 'Invalid Borrow ID'
     else:
         try:
-            models.Borrow.objects.filter(pk = pk).delete()
-            messages.success(request, "Transaction has been deleted successfully.")
+            # Delete item from ArangoDB instead of using Django models
+            delete_item_by_id('Borrow', pk)  # Replace Django ORM deletion with ArangoDB function
+            
+            messages.success(request, "Borrow Transaction has been deleted successfully.")
             resp['status'] = 'success'
-        except:
-            resp['msg'] = "Deleting Transaction Failed"
+        except Exception as e:
+            print(f"Error while deleting Borrow: {e}")  # Print exception for better debugging
+            resp['msg'] = "Deleting Borrow Transaction Failed"
 
     return HttpResponse(json.dumps(resp), content_type="application/json")
+
 
 def save_supplier(request):
     resp = { 'status': 'failed', 'msg' : '' }
