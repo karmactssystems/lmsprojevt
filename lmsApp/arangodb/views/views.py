@@ -82,16 +82,28 @@ def get_count(collection_name, status=None):
         
     return cursor[0] if cursor else 0
 
+def get_books():
+    collection = db['Books']  # Access the "UserInfo" collection
+    users = list(collection.fetchAll())  # Retrieve all documents from the collection
+    
+    # Ensure _key exists before attempting to pop
+    for user in users:
+        if '_key' in user:
+            user['key'] = user.pop('_key')
+        else:
+            # Handle the case where _key is not present
+            user['key'] = None  # Or set a default value
+    return users
 
-def get_teachers():
-    collection_name = 'UseInfo'
-    aql_query = f"""
-    FOR user IN {collection_name}
-    RETURN {{
-        id: user._id,
-        first_name: user.first_name,
-        last_name: user.last_name
-    }}
-    """
-    cursor = db.AQLQuery(aql_query, rawResults=True)
-    return cursor
+def get_users():
+    collection = db['UserInfo']  # Access the "UserInfo" collection
+    users = list(collection.fetchAll())  # Retrieve all documents from the collection
+    
+    # Ensure _key exists before attempting to pop
+    for user in users:
+        if '_key' in user:
+            user['key'] = user.pop('_key')
+        else:
+            # Handle the case where _key is not present
+            user['key'] = None  # Or set a default value
+    return users

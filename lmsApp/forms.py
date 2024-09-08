@@ -288,7 +288,7 @@ class SaveUserInfo(forms.ModelForm):
 
     class Meta:
         model = models.UserInfo
-        fields = ('name', 'address', 'phone_number', 'email', 'membership_type', 'join_date', 'status')
+        fields = ('name', 'address', 'phone_number', 'email', 'membership_type', 'join_date', 'status', )
 
     def clean_name(self):
         name = self.cleaned_data['name']
@@ -312,35 +312,34 @@ class SaveUserInfo(forms.ModelForm):
 
 class SaveBorrow(forms.ModelForm):
     book = forms.CharField(max_length=250)
-    borrowing_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
-    return_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    borrowing_date = forms.DateField()
+    return_date = forms.DateField()
     status = forms.CharField(max_length=2)
-    due_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    due_date = forms.DateField()
     fines = forms.IntegerField()
-    user = forms.ChoiceField()  # This will be populated with UserInfo data
+    user = forms.CharField(max_length=250)
 
     class Meta:
         model = models.Borrow
         fields = ('book', 'borrowing_date', 'return_date', 'status', 'due_date', 'fines', 'user')
 
-    def __init__(self, *args, **kwargs):
-        super(SaveBorrow, self).__init__(*args, **kwargs)
-        # Populate the user field with choices from the UserInfo collection in ArangoDB
-        users = [(user.id, user.username) for user in models.UserInfo.objects.all()]  # Assuming Django ORM mapping
-        self.fields['user'].choices = users
-
-    def clean_user(self):
-        user = int(self.data['user']) if (self.data['user']).isnumeric() else 0
-        try:
-            user = models.UserInfo.objects.get(id=user)
-            return user
-        except models.UserInfo.DoesNotExist:
-            raise forms.ValidationError("Invalid user.")
-
     def clean_book(self):
-        book = int(self.data['book']) if (self.data['book']).isnumeric() else 0
+        book = self.cleaned_data['book']
+        
+        # Safely convert id to an integer, defaulting to 0 if it's not provided or is empty
         try:
-            book = models.Books.objects.get(id=book)
+            id = int(self.data.get('id', 0) or 0)
+        except ValueError:
+            id = 0
+    
+        try:
+            if id > 0:
+                material = models.Borrow.objects.exclude(id=id).get(book=book, delete_flag=False)
+            else:
+                material = models.Borrow.objects.get(book=book, delete_flag=False)
+        except models.Borrow.DoesNotExist:
             return book
-        except models.Books.DoesNotExist:
-            raise forms.ValidationError("Invalid Book.")
+        
+        raise forms.ValidationError("Borrow Transaction already exists in the database.")
+
+            

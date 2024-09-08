@@ -9,7 +9,7 @@ from lmsApp import models, forms
 from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from lmsApp.arangodb.views.views import create_item, get_item_by_id, update_item_by_id,delete_item_by_id,get_all_items,serialize_to_json,create_collections,get_paginated_data,update_all_status,get_count
+from lmsApp.arangodb.views.views import create_item, get_item_by_id, update_item_by_id,delete_item_by_id,get_all_items,serialize_to_json,create_collections,get_paginated_data,update_all_status,get_count, get_users, get_books
 from lmsApp.script.insert_category import insert_data_from_json,insert_book_data,insert_user_data,insert_supplier_data
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -598,7 +598,6 @@ def get_borrows(request):
     
     # Assuming 'Category' is the ArangoDB collection name
     context['borrows'] = get_all_items('Borrow')
-    # return context['category']
     return render(request, 'borrows.html', context)
 
 
@@ -637,11 +636,16 @@ def manage_borrow(request, pk=None):
     context = context_data(request)
     context['page'] = 'manage_borrow'
     context['page_title'] = 'Manage User Information'
-    
+    context['users'] = get_users()
+    print(context['users'])
+    context['books'] = get_books()
+    print(context['books'])    
+
     if pk is None:
-        context['borrow'] = {}
+        context['borrows'] = {}
     else:
         user_info = get_item_by_id("Borrow", pk)
+        context['borrows'] = user_info
         if 'due_date' in user_info:
             # Ensure join_date is in YYYY-MM-DD format
             try:
@@ -663,10 +667,6 @@ def manage_borrow(request, pk=None):
             except ValueError:
                 return_date = ''  # or handle the error appropriately
             user_info['return_date'] = return_date
-        context['borrow'] = user_info
-        context['users'] = get_user_info()
-        print(context['borrow'])
-    
     return render(request, 'manage_borrow.html', context)
 
 

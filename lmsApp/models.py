@@ -128,7 +128,7 @@ class UserInfo(models.Model):
 
 class Borrow(models.Model):
     # student = models.ForeignKey(Students, on_delete= models.CASCADE, related_name="student_id_fk")
-    book = models.ForeignKey(Books, on_delete= models.CASCADE, related_name="book_id_fk")
+    book = models.CharField(max_length=250, blank=True, null= True)
     borrowing_date = models.DateField()
     return_date = models.DateField()
     status = models.CharField(max_length=2, choices=(('1','Pending'), ('2','Returned')), default = 1)
@@ -136,10 +136,12 @@ class Borrow(models.Model):
     date_created = models.DateTimeField(auto_now = True)
     due_date = models.DateField(default = timezone.now)
     fines = models.IntegerField(default=0)
-    user = models.ForeignKey(UserInfo, on_delete=models.CASCADE, related_name="user_borrows", blank=True, null=True)
+    user = models.CharField(max_length=250, blank=True, null= True)
+    delete_flag = models.IntegerField(default = 0)
 
     class Meta:
         verbose_name_plural = "Borrowing Transactions"
 
     def __str__(self):
-        return str(f"{self.student.code}")
+        return self.book
+    
