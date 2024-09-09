@@ -767,6 +767,9 @@ def get_teaching_materials(request):
     context['teaching_material'] = get_all_items('TeachingMaterial')  # Fetch all materials
     return render(request, 'teaching_material.html', context)
 
+import os
+from django.conf import settings
+from django.core.files.storage import default_storage
 
 @login_required
 def save_teaching_material(request):
@@ -777,6 +780,16 @@ def save_teaching_material(request):
         if form.is_valid():
             data = form.cleaned_data
             teaching_material_id = request.POST.get('id', '')
+
+            # Handle file saving
+            teaching_reference_file = request.FILES.get('teaching_reference')
+            if teaching_reference_file:
+                # Save the file and get the path
+                file_path = default_storage.save(
+                    os.path.join('teaching_materials', teaching_reference_file.name),
+                    teaching_reference_file
+                )
+                data['teaching_reference'] = teaching_reference_file.name
 
             if teaching_material_id:
                 update_item_by_id('TeachingMaterial', teaching_material_id, data)  # Update
@@ -797,6 +810,36 @@ def save_teaching_material(request):
 
     return HttpResponse(json.dumps(resp), content_type="application/json")
 
+# views.py
+from django.http import HttpResponse, Http404
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+import os
+import urllib.parse
+
+@login_required
+def download_file(request, file_key):
+    try:
+        # Decode the file_key from URL encoding
+        decoded_file_key = urllib.parse.unquote(file_key)
+
+        # Construct the file path relative to MEDIA_ROOT
+        file_path = os.path.join(settings.MEDIA_ROOT, 'teaching_materials', decoded_file_key)
+
+        # Check if the file exists
+        if not os.path.exists(file_path):
+            raise Http404("File does not exist")
+
+        # Open and serve the file
+        with open(file_path, 'rb') as file:
+            response = HttpResponse(file.read(), content_type='application/force-download')
+            response['Content-Disposition'] = f'attachment; filename="{os.path.basename(decoded_file_key)}"'
+            response['Content-Length'] = os.path.getsize(file_path)
+            return response
+
+    except Exception as e:
+        print(f"Error: {e}")  # Log the error
+        raise Http404("An error occurred while downloading the file")
 
 
 @login_required
@@ -814,28 +857,6 @@ def manage_teaching_material(request, pk=None):
     # context['subject'] = ['Electronics', 'Computer Science']
     # context['course'] = ['BCA', 'BSC', 'FYBCom']
     return render(request, 'manage_teaching_material.html', context)
-    
-@login_required
-def download_file(request, pk=None):
-    if pk is None:
-        return HttpResponse("Invalid ID")
-    
-    teaching_material = get_item_by_id("TeachingMaterial", pk)
-    if teaching_material is None:
-        return HttpResponse("Teaching Material not found")
-    
-    file_path = teaching_material.get('file_path', '')
-    if not file_path:
-        return HttpResponse("File not found")
-    
-    try:
-        with open(file_path, 'rb') as file:
-            response = HttpResponse(file.read(), content_type='application/force-download')
-            response['Content-Disposition'] = f'attachment; filename={teaching_material.get("file_name")}'
-            return response
-    except Exception as e:
-        return HttpResponse(f"Error downloading file: {str(e)}")
-
 
 @login_required
 def view_teaching_material(request, pk=None):

@@ -237,7 +237,7 @@ class SaveTeachingMaterial(forms.ModelForm):
     name = forms.CharField(max_length=250)
     subject = forms.CharField(max_length=250)
     course = forms.CharField(max_length=250)
-    teaching_reference = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+    teaching_reference = forms.FileField()
 
     class Meta:
         model = models.TeachingMaterial

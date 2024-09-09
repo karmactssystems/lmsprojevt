@@ -79,9 +79,8 @@ urlpatterns = [
     path('manage_teaching_material/<int:pk>/', views.manage_teaching_material, name='manage-teaching-material-pk'),
     path('view_teaching_material/<int:pk>/', views.view_teaching_material, name='view-teaching-material'),
     path('delete_teaching_material/<int:pk>/', views.delete_teaching_material, name='delete-teaching-material'),
-    path('download_file/<int:pk>/', views.download_file, name='download-file'),
-
-
+    path('download_file/<str:file_key>/', views.download_file, name='download-file'),
+    
     path('save_user_info/', views.save_user_info, name='save-user-info'),
     path('get_user_info/', views.get_user_info, name='user-info-page'),
     path('manage_user_info',views.manage_user_info,name='manage-user-info'),

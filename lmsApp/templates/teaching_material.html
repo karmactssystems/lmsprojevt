@@ -43,6 +43,7 @@
                                 <th class="text-center">Name</th>
                                 <th class="text-center">Subject</th>
                                 <th class="text-center">Course</th>
+                                <th class="text-center">Teaching Reference</th>
                                 <th class="text-center">Action</th>
                             </tr>
                         </thead>
@@ -57,6 +58,11 @@
                                 </td>
                                 <td>
                                     <p class="m-0 truncate-1">{{ cat.course|safe }}</p>
+                                </td>
+                                <td>
+                                    {% if cat.teaching_reference %}
+                                    <a href="{% url 'download-file' cat.teaching_reference %}" style="text-decoration:None">Download here</a>
+                                    {% endif %}
                                 </td>
                                 <td class="text-center">
                                     <div class="dropdown">
@@ -111,9 +117,7 @@
         </div>
     </div>
 </div>
-
 {% endblock pageContent %}
-
 {% block ScriptBlock %}
 <script>
     $(function () {

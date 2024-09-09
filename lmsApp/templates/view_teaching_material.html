@@ -17,8 +17,14 @@
             <dd class="ps-4">{{teaching_material.subject}}</dd>
             <dt>Course</dt>
             <dd class="ps-4">{{teaching_material.course}}</dd>
-            <dt>Teaching Reference</dt>
-            <dd class="ps-4">{{teaching_material.teaching_reference}}</dd>
+            <dd class="ps-4">
+                {{ teaching_material.teaching_reference }}
+                {% if teaching_material.teaching_reference %}
+                <a href="{% url 'download-file' teaching_material.teaching_reference %}" class="btn btn-primary mt-2">
+                    Download
+                </a>
+                {% endif %}
+            </dd>        
         </dl>
     </div>
 </div>
