@@ -606,16 +606,16 @@ def save_borrow(request):
     resp = {'status': 'failed', 'msg': ''}
 
     if request.method == 'POST':
-        form = forms.SaveBorrow(request.POST)  # Include request.FILES
+        form = forms.SaveBorrow(request.POST)
         if form.is_valid():
-            print(request.POST, "request.POST")
             data = form.cleaned_data
-            category_id = request.POST.get('id', '')
-            if category_id:
-                update_item_by_id('Borrow', category_id, data)  # Update the existing document
+            borrow_id = request.POST.get('pk', '')
+
+            if borrow_id:
+                update_item_by_id('Borrow', borrow_id, data)  # Update
                 messages.success(request, "Borrow Transaction has been updated successfully.")
             else:
-                create_item('Borrow', data)  # Create a new document
+                create_item('Borrow', data)  # Create
                 messages.success(request, "Borrow Transaction has been saved successfully.")
 
             resp['status'] = 'success'
@@ -626,9 +626,10 @@ def save_borrow(request):
                         resp['msg'] += str('<br/>')
                     resp['msg'] += str(f'[{field.name}] {error}')
     else:
-        resp['msg'] = "There's no data sent on the request"
+        resp['msg'] = "No data sent in the request"
 
     return HttpResponse(json.dumps(resp), content_type="application/json")
+
 
 
 @login_required
@@ -642,10 +643,10 @@ def manage_borrow(request, pk=None):
     print(context['books'])    
 
     if pk is None:
-        context['borrows'] = {}
+        context['borrow'] = {}
     else:
         user_info = get_item_by_id("Borrow", pk)
-        context['borrows'] = user_info
+        context['borrow'] = user_info
         if 'due_date' in user_info:
             # Ensure join_date is in YYYY-MM-DD format
             try:
@@ -667,6 +668,7 @@ def manage_borrow(request, pk=None):
             except ValueError:
                 return_date = ''  # or handle the error appropriately
             user_info['return_date'] = return_date
+        
     return render(request, 'manage_borrow.html', context)
 
 

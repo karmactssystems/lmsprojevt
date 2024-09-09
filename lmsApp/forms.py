@@ -341,5 +341,4 @@ class SaveBorrow(forms.ModelForm):
             return book
         
         raise forms.ValidationError("Borrow Transaction already exists in the database.")
-
             
