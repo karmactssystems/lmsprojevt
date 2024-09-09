@@ -18,8 +18,8 @@
         <div class="mb-3">
             <label for="teaching_reference" class="control-label">Teaching Reference</label>
             {% if teaching_material.teaching_reference %}
-                <div>
-                    <a href="{{ teaching_material.teaching_reference.url }}" target="download">View Current File</a>
+                <div class="mb-2">
+                    <a href="{% url 'download-file' teaching_material.teaching_reference %}" class="btn btn-primary btn-sm" style="text-decoration:none">Download Teaching Material</a>
                 </div>
             {% endif %}
             <input type="file" id="teaching_reference" name="teaching_reference" class="form-control form-control-sm rounded-0" multiple>
