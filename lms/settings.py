@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'module1',
+    'module2',
+    'module3',
 ]
 
 MIDDLEWARE = [
@@ -73,13 +76,40 @@ WSGI_APPLICATION = 'lms.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    'mongo': {
+        'ENGINE': 'djongo',
+        'NAME': 'module2_db',  # MongoDB database name
+        'ENFORCE_SCHEMA': False,  # Optional, for flexible schemas
+        'CLIENT': {
+            'host': 'localhost',  # MongoDB host
+            'port': 27017,        # MongoDB port
+            'username': '',       # Add if MongoDB requires authentication
+            'password': '',
+            'authSource': 'admin',  # Default admin DB for authentication
+        }
+    },
+    'neo4j': {
+        'ENGINE': 'neo4j',
+        'NAME': 'module3_db',  # Optional
+        'OPTIONS': {
+            'uri': 'bolt://localhost:7687',  # Neo4j connection URI
+            'auth': ('neo4j', 'password'),   # Replace with your credentials
+        }
     }
 }
 
+DATABASE_ROUTERS = ['lms.database_router.ModuleDatabaseRouter']
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -121,3 +151,13 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STATICFILES_DIRS = [ 
+    BASE_DIR / "static",
+    ]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/login'
