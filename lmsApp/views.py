@@ -1063,6 +1063,65 @@ def student_list_couch(request):
             "id": doc_id,
             "name": f"{student_doc.get('first_name', '')} {student_doc.get('last_name', '')}",
             "email": student_doc.get("email", ""),
+            "gender": student_doc.get("gender", ""),
+            "contact": student_doc.get("contact", ""),
+            "address": student_doc.get("address", ""),
+            "department": student_doc.get("department", ""),
+            "course": student_doc.get("course", ""),
+            "status": student_doc.get("status", ""),
+            "code": student_doc.get("code", ""),
         })
 
     return render(request, "student_list_couch.html", {"students": students})
+
+
+# View to edit a student document
+def edit_student_couch(request, student_id):
+    # Connect to CouchDB
+    COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE['USER']}:{settings.COUCHDB_DATABASE['PASSWORD']}@127.0.0.1:5984/"
+    server = couchdb.Server(COUCHDB_URL)
+
+    db_name = settings.COUCHDB_DATABASE["NAME"]
+    if db_name in server:
+        db = server[db_name]
+    else:
+        db = server.create(db_name)
+
+    # Retrieve the student document by ID
+    student_doc = db.get(student_id)
+    if not student_doc:
+        return redirect("student_list_couch")
+
+    # Pre-fill the form with the current student data
+    if request.method == "POST":
+        form = StudentForm(request.POST)
+        if form.is_valid():
+            # Update the document with new data
+            student_data = form.cleaned_data
+            student_doc.update(student_data)
+            db.save(student_doc)  # Save the updated document
+
+            return redirect("student_list_couch")
+    else:
+        form = StudentForm(initial=student_doc)  # Pre-fill the form
+
+    return render(request, "edit_student.html", {"form": form, "student_id": student_id})
+
+# View to delete a student document
+def delete_student_couch(request, student_id):
+    # Connect to CouchDB
+    COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE['USER']}:{settings.COUCHDB_DATABASE['PASSWORD']}@127.0.0.1:5984/"
+    server = couchdb.Server(COUCHDB_URL)
+
+    db_name = settings.COUCHDB_DATABASE["NAME"]
+    if db_name in server:
+        db = server[db_name]
+    else:
+        db = server.create(db_name)
+
+    # Delete the student document by ID
+    student_doc = db.get(student_id)
+    if student_doc:
+        db.delete(student_doc)  # Delete the document
+
+    return redirect("student_list_couch")

@@ -1,38 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student List</title>
 </head>
+
 <body>
     <h2>Student List</h2>
-
-    <!-- Add Student Button -->
+    <a href="{% url 'create_student_couch' %}">
+        <button>Create Student</button>
+    </a>
 
     <!-- Check if there are students -->
     {% if students %}
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for student in students %}
-                <tr>
-                    <td>{{ student.id }}</td>
-                    <td>{{ student.name }}</td>
-                    <td>{{ student.email }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Gender</th>
+                <th>Contact</th>
+                <th>Email</th>
+                <th>Address</th>
+                <th>Department</th>
+                <th>Course</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.id }}</td>
+                <td>{{ student.code }}</td>
+                <td>{{ student.name }}</td>
+                <td>{{ student.gender }}</td>
+                <td>{{ student.contact }}</td>
+                <td>{{ student.email }}</td>
+                <td>{{ student.address }}</td>
+                <td>{{ student.department }}</td>
+                <td>{{ student.course }}</td>
+                <td>{{ student.status }}</td>
+                <td>
+                    <a href="{% url 'edit_student_couch' student.id %}">Edit</a> |
+                    <a href="{% url 'delete_student_couch' student.id %}"
+                        onclick="return confirm('Are you sure you want to delete this student?');">Delete</a>
+                </td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
     {% else %}
-        <p>No students found.</p>
+    <p>No students found.</p>
     {% endif %}
 </body>
+
 </html>

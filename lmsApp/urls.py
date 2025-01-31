@@ -9,7 +9,7 @@ from django.views.generic.base import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
 
-from .views import create_student_couch, student_list_couch
+from .views import create_student_couch, student_list_couch, edit_student_couch, delete_student_couch
 
 urlpatterns = [
     path('',views.home, name="home-page"),
@@ -93,5 +93,7 @@ urlpatterns = [
 
     path("create_student_couch/", create_student_couch, name="create_student_couch"),
     path("students_list_couch/", student_list_couch, name="student_list_couch"),
+    path("edit_student_couch/<str:student_id>/", views.edit_student_couch, name="edit_student_couch"),
+    path("delete_student_couch/<str:student_id>/", views.delete_student_couch, name="delete_student_couch"),
     
 ]+ static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
