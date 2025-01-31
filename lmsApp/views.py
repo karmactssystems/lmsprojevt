@@ -307,19 +307,27 @@ def manage_category(request, pk = None):
     return render(request, 'manage_category.html', context)
 
 @login_required
-def delete_category(request, pk = None):
-    resp = { 'status' : 'failed', 'msg':''}
-    if pk is None:
-        resp['msg'] = 'Category ID is invalid'
+def delete_category(request, pk=None):
+    resp = {'status': 'failed', 'msg': ''}
+
+    print(f"Delete request for Category ID: {pk}")  # Debugging: print the ID to be deleted
+    
+    # Check if pk is valid
+    if pk is None or pk == 'None':
+        resp['msg'] = 'Invalid Category ID'
     else:
         try:
-            models.Category.objects.filter(pk = pk).update(delete_flag = 1)
+            # Delete item from ArangoDB instead of using Django models
+            delete_item_by_id('Category', pk)  # Replace Django ORM deletion with ArangoDB function
+            
             messages.success(request, "Category has been deleted successfully.")
             resp['status'] = 'success'
-        except:
+        except Exception as e:
+            print(f"Error while deleting Category: {e}")  # Print exception for better debugging
             resp['msg'] = "Deleting Category Failed"
 
     return HttpResponse(json.dumps(resp), content_type="application/json")
+
 
 @login_required
 def sub_category(request):
@@ -433,6 +441,7 @@ def books(request):
     for i in range(20):
         listdata = listdata + list(get_paginated_data('Books',limit_per_page,offset=offset))
     context['books'] = listdata
+    print(context['books'])
     return render(request, 'books.html', context)
 
 @login_required
@@ -488,19 +497,27 @@ def manage_book(request, pk = None):
     return render(request, 'manage_book.html', context)
 
 @login_required
-def delete_book(request, pk = None):
-    resp = { 'status' : 'failed', 'msg':''}
-    if pk is None:
-        resp['msg'] = 'Book ID is invalid'
+def delete_book(request, pk=None):
+    resp = {'status': 'failed', 'msg': ''}
+
+    print(f"Delete request for Book ID: {pk}")  # Debugging: print the ID to be deleted
+    
+    # Check if pk is valid
+    if pk is None or pk == 'None':
+        resp['msg'] = 'Invalid Book ID'
     else:
         try:
-            models.Books.objects.filter(pk = pk).update(delete_flag = 1)
+            # Delete item from ArangoDB instead of using Django models
+            delete_item_by_id('Books', pk)  # Replace Django ORM deletion with ArangoDB function
+            
             messages.success(request, "Book has been deleted successfully.")
             resp['status'] = 'success'
-        except:
+        except Exception as e:
+            print(f"Error while deleting Book: {e}")  # Print exception for better debugging
             resp['msg'] = "Deleting Book Failed"
 
     return HttpResponse(json.dumps(resp), content_type="application/json")
+
 
 @login_required
 def students(request):
@@ -992,3 +1009,60 @@ def delete_user_info(request, pk=None):
 
     return HttpResponse(json.dumps(resp), content_type="application/json")
 
+
+
+
+import couchdb
+from django.conf import settings
+from django.shortcuts import render, redirect
+from .forms import StudentForm
+
+def create_student_couch(request):
+    if request.method == "POST":
+        form = StudentForm(request.POST)
+        if form.is_valid():
+            # Connect to CouchDB
+            COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE['USER']}:{settings.COUCHDB_DATABASE['PASSWORD']}@127.0.0.1:5984/"
+            server = couchdb.Server(COUCHDB_URL)
+
+            db_name = settings.COUCHDB_DATABASE["NAME"]
+            if db_name in server:
+                db = server[db_name]
+            else:
+                db = server.create(db_name)
+
+            # Save Student Record
+            student_data = form.cleaned_data
+            doc_id, _ = db.save(student_data)
+
+            return redirect("student_list_couch")  # Redirect to student list page (to be created)
+
+    else:
+        form = StudentForm()
+    
+    return render(request, "create_student.html", {"form": form})
+
+
+
+def student_list_couch(request):
+    # Connect to CouchDB
+    COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE['USER']}:{settings.COUCHDB_DATABASE['PASSWORD']}@127.0.0.1:5984/"
+    server = couchdb.Server(COUCHDB_URL)
+
+    db_name = settings.COUCHDB_DATABASE["NAME"]
+    if db_name in server:
+        db = server[db_name]
+    else:
+        db = server.create(db_name)
+
+    # Retrieve all student documents
+    students = []
+    for doc_id in db:
+        student_doc = db[doc_id]
+        students.append({
+            "id": doc_id,
+            "name": f"{student_doc.get('first_name', '')} {student_doc.get('last_name', '')}",
+            "email": student_doc.get("email", ""),
+        })
+
+    return render(request, "student_list_couch.html", {"students": students})

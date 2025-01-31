@@ -342,3 +342,17 @@ class SaveBorrow(forms.ModelForm):
         
         raise forms.ValidationError("Borrow Transaction already exists in the database.")
             
+
+
+class StudentForm(forms.Form):
+    code = forms.CharField(max_length=250)
+    first_name = forms.CharField(max_length=250)
+    middle_name = forms.CharField(max_length=250, required=False)
+    last_name = forms.CharField(max_length=250)
+    gender = forms.ChoiceField(choices=[('Male', 'Male'), ('Female', 'Female')], initial='Male')
+    contact = forms.CharField(max_length=250)
+    email = forms.EmailField(max_length=250)
+    address = forms.CharField(max_length=250)
+    department = forms.CharField(max_length=250, required=False)
+    course = forms.CharField(max_length=250, required=False)
+    status = forms.ChoiceField(choices=[('1', 'Active'), ('2', 'Inactive')], initial='1')

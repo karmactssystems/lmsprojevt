@@ -9,6 +9,8 @@ from django.views.generic.base import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
 
+from .views import create_student_couch, student_list_couch
+
 urlpatterns = [
     path('',views.home, name="home-page"),
     path('login',views.login_page,name='login-page'),
@@ -87,5 +89,9 @@ urlpatterns = [
     path('manage_user_info/<int:pk>',views.manage_user_info,name='manage-user-info-pk'),
     path('view_user_info/<int:pk>',views.view_user_info,name='view-user-info'),
     path('delete_user_info/<int:pk>/', views.delete_user_info, name='delete-user-info'),
+
+
+    path("create_student_couch/", create_student_couch, name="create_student_couch"),
+    path("students_list_couch/", student_list_couch, name="student_list_couch"),
     
 ]+ static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

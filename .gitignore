@@ -1,1 +1,7 @@
 env
+**/migrations/*
+!**/migrations/__init__.py
+*.pyc
+*.pyo
+*.pyd
+*.db

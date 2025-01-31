@@ -9,7 +9,8 @@ from PIL import Image
 from django.contrib.auth.models import User
 from django.contrib.auth.base_user import BaseUserManager
 from django.conf import settings
-
+from neomodel import StructuredNode, StringProperty, IntegerProperty,UniqueIdProperty, RelationshipTo, DateTimeProperty
+from datetime import datetime
 
 # Create your models here.
 class Category(models.Model):
@@ -145,3 +146,76 @@ class Borrow(models.Model):
     def __str__(self):
         return self.book
     
+
+
+# Create your models here.
+
+#neo4j models
+class City(StructuredNode):
+    code = StringProperty(unique_index=True, required=True)
+    name = StringProperty(index=True, default="city")
+
+class Person(StructuredNode):
+    uid = UniqueIdProperty()
+    name = StringProperty(unique_index=True)
+    age = IntegerProperty(index=True, default=0)
+
+    # Relations :
+    city = RelationshipTo(City, 'LIVES_IN')
+    friends = RelationshipTo('Person','FRIEND')
+
+class StudentSchema(StructuredNode):
+    code = StringProperty(unique_index=True, required=True)
+    first_name = StringProperty(index=True)
+    middle_name = StringProperty(index=True, required=False)
+    last_name = StringProperty(index=True)
+    gender = StringProperty(index=True, choices={"Male": "Male", "Female": "Female"}, default="Male")
+    contact = StringProperty(index=True)
+    email = StringProperty(index=True)
+    address = StringProperty(index=True)
+    department = StringProperty(index=True, required=False)
+    course = StringProperty(index=True, required=False)
+    status = StringProperty(index=True, choices={"1": "Active", "2": "Inactive"}, default="1")
+    delete_flag = IntegerProperty(default=0)
+    date_added = StringProperty(default=datetime.now().isoformat, index=True)
+    date_created = StringProperty(default=datetime.now().isoformat, index=True)
+
+    def name(self):
+        return f"{self.first_name} {' ' + self.middle_name if self.middle_name else ''} {self.last_name}"
+
+
+
+#teaching material, review and feedback model for neo
+class TeachingMaterialSchema(StructuredNode):
+    name = StringProperty(index=True, required=False)
+    subject = StringProperty(index=True, required=False)
+    course = StringProperty(index=True, required=False)
+    teaching_reference = StringProperty(index=True, required=False)
+    delete_flag = IntegerProperty(default=0)
+
+    def __str__(self):
+        return f"{self.name or ''} {self.subject or ''} {self.course or ''} {self.teaching_reference or ''}"
+    
+
+class Review(StructuredNode):
+    review_text = StringProperty(required=True)
+    rating = IntegerProperty(min=1, max=5, required=True)  # Rating between 1 to 5
+    review_date = DateTimeProperty(default=datetime.now)  # Automatically set the review date
+    reviewer_name = StringProperty(required=True)
+
+    # Relationship to TeachingMaterialSchema
+    reviewed_material = RelationshipTo('TeachingMaterialSchema', 'REVIEWS')
+
+    def __str__(self):
+        return f"Review by {self.reviewer_name} for {self.reviewed_material.name}: {self.rating} stars"
+    
+class Feedback(StructuredNode):
+    feedback_text = StringProperty(required=True)
+    feedback_date = DateTimeProperty(default=datetime.now)  # Automatically set the feedback date
+    feedback_giver = StringProperty(required=True)
+
+    # Relationship to Review
+    feedback_for_review = RelationshipTo('Review', 'GIVES_FEEDBACK')
+
+    def __str__(self):
+        return f"Feedback by {self.feedback_giver}: {self.feedback_text}"
