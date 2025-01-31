@@ -100,5 +100,10 @@ urlpatterns = [
     path("teacher_list_couch/", views.teacher_list_couch, name="teacher_list_couch"),
     path("edit_teacher_couch/<str:teacher_id>/", views.edit_teacher_couch, name="edit_teacher_couch"),
     path("delete_teacher_couch/<str:teacher_id>/", views.delete_teacher_couch, name="delete_teacher_couch"),
+
+    path('create_sub_category_couch/', views.create_sub_category_couch, name='create_sub_category_couch'),
+    path('sub_category_list_couch/', views.sub_category_list_couch, name='sub_category_list_couch'),
+    path('edit_sub_category_couch/<str:sub_category_id>/', views.edit_sub_category_couch, name='edit_sub_category_couch'),
+    path('delete_sub_category_couch/<str:sub_category_id>/', views.delete_sub_category_couch, name='delete_sub_category_couch'),
     
 ]+ static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

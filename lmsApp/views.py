@@ -1015,7 +1015,7 @@ def delete_user_info(request, pk=None):
 import couchdb
 from django.conf import settings
 from django.shortcuts import render, redirect
-from .forms import StudentForm, TeacherForm
+from .forms import StudentForm, TeacherForm, SubCategoryForm
 
 def create_student_couch(request):
     if request.method == "POST":
@@ -1232,3 +1232,108 @@ def delete_teacher_couch(request, teacher_id):
         db.delete(teacher_doc)  # Delete the document
 
     return redirect("teacher_list_couch")
+
+
+def create_sub_category_couch(request):
+    if request.method == "POST":
+        form = SubCategoryForm(request.POST)
+        if form.is_valid():
+            # Connect to CouchDB
+            COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE3['USER']}:{settings.COUCHDB_DATABASE3['PASSWORD']}@127.0.0.1:5984/"
+            server = couchdb.Server(COUCHDB_URL)
+
+            db_name = settings.COUCHDB_DATABASE3["NAME"]
+            if db_name in server:
+                db = server[db_name]
+            else:
+                db = server.create(db_name)
+
+            # Save Teacher Record
+            teacher_data = form.cleaned_data
+            doc_id, _ = db.save(teacher_data)
+
+            return redirect("sub_category_list_couch")  # Redirect to teacher list page
+
+    else:
+        form = SubCategoryForm()
+    
+    return render(request, "create_sub_category_couch.html", {"form": form})
+
+def sub_category_list_couch(request):
+    # Connect to CouchDB
+    COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE3['USER']}:{settings.COUCHDB_DATABASE3['PASSWORD']}@127.0.0.1:5984/"
+    server = couchdb.Server(COUCHDB_URL)
+
+    db_name = settings.COUCHDB_DATABASE3["NAME"]
+    if db_name in server:
+        db = server[db_name]
+    else:
+        db = server.create(db_name)
+
+    # Retrieve all sub-category documents
+    sub_categories = []
+    for doc_id in db:
+        sub_category_doc = db[doc_id]
+        status_code = sub_category_doc.get("status", "1")  # Default to 'Active' if status is missing
+
+        # Map the status code to a human-readable label
+        status_label = "Active" if status_code == "1" else "Inactive"
+
+        sub_categories.append({
+            "id": doc_id,
+            "name": sub_category_doc.get("name", ""),
+            "description": sub_category_doc.get("description", ""),
+            "status": status_label,
+        })
+
+    return render(request, "sub_category_list_couch.html", {"sub_categories": sub_categories})
+
+
+
+def edit_sub_category_couch(request, sub_category_id):
+    COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE3['USER']}:{settings.COUCHDB_DATABASE3['PASSWORD']}@127.0.0.1:5984/"
+    server = couchdb.Server(COUCHDB_URL)
+
+    db_name = settings.COUCHDB_DATABASE3["NAME"]
+    if db_name in server:
+        db = server[db_name]
+    else:
+        db = server.create(db_name)
+
+    # Retrieve the teacher document
+    sub_category_doc = db.get(sub_category_id)
+    if not sub_category_doc:
+        return redirect("sub_category_list_couch")
+    
+    if request.method == "POST":
+        form = SubCategoryForm(request.POST)
+        if form.is_valid():
+            # Update Teacher Record
+            sub_category_data = form.cleaned_data
+            sub_category_doc.update(sub_category_data)
+            db[sub_category_id] = sub_category_doc
+
+            return redirect("sub_category_list_couch")
+        
+    else:
+        form = SubCategoryForm(initial=sub_category_doc)
+    
+    return render(request, "edit_sub_category_couch.html", {"form": form})
+
+
+def delete_sub_category_couch(request, sub_category_id):
+    COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE3['USER']}:{settings.COUCHDB_DATABASE3['PASSWORD']}@127.0.0.1:5984/"
+    server = couchdb.Server(COUCHDB_URL)
+
+    db_name = settings.COUCHDB_DATABASE3["NAME"]
+    if db_name in server:
+        db = server[db_name]
+    else:
+        db = server.create(db_name)
+
+    # Retrieve the teacher document
+    sub_category_doc = db.get(sub_category_id)
+    if sub_category_doc:
+        db.delete(sub_category_doc)  # Delete the document
+
+    return redirect("sub_category_list_couch")

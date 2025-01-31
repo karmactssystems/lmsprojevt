@@ -369,3 +369,9 @@ class TeacherForm(forms.Form):
     department = forms.CharField(max_length=250, required=False)
     course = forms.CharField(max_length=250, required=False)
     status = forms.ChoiceField(choices=[('1', 'Active'), ('2', 'Inactive')], initial='1')
+
+
+class SubCategoryForm(forms.Form):
+    name = forms.CharField(max_length=250)
+    description = forms.CharField(max_length=250)
+    status = forms.ChoiceField(choices=[('1', 'Active'), ('2', 'Inactive')], initial='1')
