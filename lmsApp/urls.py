@@ -95,5 +95,10 @@ urlpatterns = [
     path("students_list_couch/", student_list_couch, name="student_list_couch"),
     path("edit_student_couch/<str:student_id>/", views.edit_student_couch, name="edit_student_couch"),
     path("delete_student_couch/<str:student_id>/", views.delete_student_couch, name="delete_student_couch"),
+
+    path("create_teacher_couch/", views.create_teacher_couch, name="create_teacher_couch"),
+    path("teacher_list_couch/", views.teacher_list_couch, name="teacher_list_couch"),
+    path("edit_teacher_couch/<str:teacher_id>/", views.edit_teacher_couch, name="edit_teacher_couch"),
+    path("delete_teacher_couch/<str:teacher_id>/", views.delete_teacher_couch, name="delete_teacher_couch"),
     
 ]+ static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

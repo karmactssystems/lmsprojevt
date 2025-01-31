@@ -1015,7 +1015,7 @@ def delete_user_info(request, pk=None):
 import couchdb
 from django.conf import settings
 from django.shortcuts import render, redirect
-from .forms import StudentForm
+from .forms import StudentForm, TeacherForm
 
 def create_student_couch(request):
     if request.method == "POST":
@@ -1125,3 +1125,110 @@ def delete_student_couch(request, student_id):
         db.delete(student_doc)  # Delete the document
 
     return redirect("student_list_couch")
+
+
+def create_teacher_couch(request):
+    if request.method == "POST":
+        form = TeacherForm(request.POST)
+        if form.is_valid():
+            # Connect to CouchDB
+            COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE2['USER']}:{settings.COUCHDB_DATABASE2['PASSWORD']}@127.0.0.1:5984/"
+            server = couchdb.Server(COUCHDB_URL)
+
+            db_name = settings.COUCHDB_DATABASE2["NAME"]
+            if db_name in server:
+                db = server[db_name]
+            else:
+                db = server.create(db_name)
+
+            # Save Teacher Record
+            teacher_data = form.cleaned_data
+            doc_id, _ = db.save(teacher_data)
+
+            return redirect("teacher_list_couch")  # Redirect to teacher list page
+
+    else:
+        form = TeacherForm()
+    
+    return render(request, "create_teacher.html", {"form": form})
+
+
+# Teacher List
+def teacher_list_couch(request):
+    # Connect to CouchDB
+    COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE2['USER']}:{settings.COUCHDB_DATABASE2['PASSWORD']}@127.0.0.1:5984/"
+    server = couchdb.Server(COUCHDB_URL)
+
+    db_name = settings.COUCHDB_DATABASE2["NAME"]
+    if db_name in server:
+        db = server[db_name]
+    else:
+        db = server.create(db_name)
+
+    # Retrieve all teacher documents
+    teachers = []
+    for doc_id in db:
+        teacher_doc = db[doc_id]
+        teachers.append({
+            "id": doc_id,
+            "name": f"{teacher_doc.get('first_name', '')} {teacher_doc.get('last_name', '')}",
+            "email": teacher_doc.get("email", ""),
+            "gender": teacher_doc.get("gender", ""),
+            "contact": teacher_doc.get("contact", ""),
+            "address": teacher_doc.get("address", ""),
+            "department": teacher_doc.get("department", ""),
+            "course": teacher_doc.get("course", ""),
+            "status": teacher_doc.get("status", ""),
+        })
+
+    return render(request, "teacher_list_couch.html", {"teachers": teachers})
+
+
+# Edit Teacher
+def edit_teacher_couch(request, teacher_id):
+    COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE2['USER']}:{settings.COUCHDB_DATABASE2['PASSWORD']}@127.0.0.1:5984/"
+    server = couchdb.Server(COUCHDB_URL)
+
+    db_name = settings.COUCHDB_DATABASE2["NAME"]
+    if db_name in server:
+        db = server[db_name]
+    else:
+        db = server.create(db_name)
+
+    # Retrieve the teacher document
+    teacher_doc = db.get(teacher_id)
+    if not teacher_doc:
+        return redirect("teacher_list_couch")
+
+    if request.method == "POST":
+        form = TeacherForm(request.POST)
+        if form.is_valid():
+            # Update Teacher Record
+            teacher_data = form.cleaned_data
+            teacher_doc.update(teacher_data)
+            db[teacher_id] = teacher_doc  # Save updated document
+
+            return redirect("teacher_list_couch")
+    else:
+        form = TeacherForm(initial=teacher_doc)
+
+    return render(request, "edit_teacher_couch.html", {"form": form})
+
+
+# Delete Teacher
+def delete_teacher_couch(request, teacher_id):
+    COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE2['USER']}:{settings.COUCHDB_DATABASE2['PASSWORD']}@127.0.0.1:5984/"
+    server = couchdb.Server(COUCHDB_URL)
+
+    db_name = settings.COUCHDB_DATABASE2["NAME"]
+    if db_name in server:
+        db = server[db_name]
+    else:
+        db = server.create(db_name)
+
+    # Retrieve the teacher document
+    teacher_doc = db.get(teacher_id)
+    if teacher_doc:
+        db.delete(teacher_doc)  # Delete the document
+
+    return redirect("teacher_list_couch")
