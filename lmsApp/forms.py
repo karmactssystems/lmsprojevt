@@ -509,7 +509,7 @@ class ReviewForm(forms.Form):
     review_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control'}), required=True)
     rating = forms.IntegerField(min_value=1, max_value=5, widget=forms.NumberInput(attrs={'class': 'form-control'}), required=True)
     reviewer_name = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control'}), required=True)
-    reviewed_material_uid = forms.CharField(widget=forms.HiddenInput(), required=True)  # Hidden field for material UID
+    reviewed_material = forms.CharField(widget=forms.HiddenInput(), required=True)  # Hidden field for material UID
 
 
 class FeedbackForm(forms.Form):
@@ -519,4 +519,4 @@ class FeedbackForm(forms.Form):
         required=False
     )
     feedback_giver = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control'}), required=True)
-    feedback_for_review_uid = forms.CharField(widget=forms.HiddenInput(), required=True)  # Hidden field for review UID
+    feedback_for_review = forms.CharField(widget=forms.HiddenInput(), required=True)  # Hidden field for review UID

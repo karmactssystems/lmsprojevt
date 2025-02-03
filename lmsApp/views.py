@@ -1846,7 +1846,7 @@ def create_feedback_neo(request, teaching_uid):
             review.save()  # Save the review in Neo4j
             return redirect('review_list_neo')  # Redirect to the review list
     else:
-        form = FeedbackForm(initial={'feedback_for_review_uid': teaching_uid})  # Set the hidden field value
+        form = FeedbackForm(initial={'feedback_for_review': teaching_uid})  # Set the hidden field value
 
     return render(request, 'create_feedback_neo.html', {'form': form, 'title': 'Create Review', 'material': material})
 

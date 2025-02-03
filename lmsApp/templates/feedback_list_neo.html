@@ -74,7 +74,7 @@
                 <th>Feedback Text</th>
                 <th>Feedback Date</th>
                 <th>Feedback Giver</th>
-                <th>Feedback Review ID</th>
+                <th>UID</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -84,7 +84,7 @@
                 <td>{{ review.feedback_text }}</td>
                 <td>{{ review.feedback_date }}</td>
                 <td>{{ review.feedback_giver }}</td>
-                <td>{{ review.reviewed_material }}</td>
+                <td>{{ review.uid }}</td>
                 <td>
                     <a href="{% url 'update_review_neo' review.uid %}">Edit</a> |
                     <a href="{% url 'delete_review_neo' review.uid %}"
