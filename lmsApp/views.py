@@ -1888,3 +1888,108 @@ def delete_feedback_neo(request, review_uid):
         material.save()
     return redirect('feedback_list_neo')
 
+
+
+from django.shortcuts import render, redirect
+from .forms import PurchaseOrderForm
+from .models import PurchaseOrder
+
+def create_purchase_order_sqlite(request):
+    if request.method == "POST":
+        form = PurchaseOrderForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("purchase_order_sqlite")  # Replace with the actual view name
+    else:
+        form = PurchaseOrderForm()
+
+    return render(request, "create_purchase_order.html", {"form": form})
+
+
+def purchase_order_list(request):
+    orders = PurchaseOrder.objects.all()
+    return render(request, "purchase_order_list.html", {"orders": orders})
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import PurchaseOrder
+from .forms import PurchaseOrderForm
+
+def edit_purchase_order(request, pk):
+    order = get_object_or_404(PurchaseOrder, pk=pk)
+    
+    if request.method == "POST":
+        form = PurchaseOrderForm(request.POST, instance=order)
+        if form.is_valid():
+            form.save()
+            return redirect("purchase_order_sqlite")  # Redirect to the purchase order list
+    else:
+        form = PurchaseOrderForm(instance=order)
+
+    return render(request, "edit_purchase_order_sqlite.html", {"form": form, "order": order})
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from .models import PurchaseOrder
+
+def delete_purchase_order(request, pk):
+    order = get_object_or_404(PurchaseOrder, pk=pk)
+    
+    if request.method == "POST":
+        order.delete()
+        messages.success(request, "Purchase order deleted successfully.")
+        return redirect("purchase_order_sqlite")  # Redirect to the purchase order list
+
+    return render(request, "delete_purchase_order_sqlite.html", {"order": order})
+
+
+
+
+from django.shortcuts import render, redirect
+from .forms import PurchaseOrderForm, BillGenerationForm
+from .models import PurchaseOrder, BillGeneration
+
+def create_bill_generation_sqlite(request):
+    if request.method == "POST":
+        form = BillGenerationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("bill_order_sqlite")  # Replace with the actual view name
+    else:
+        form = BillGenerationForm()
+
+    return render(request, "create_bill_order_sqlite.html", {"form": form})
+
+
+def bill_generation_list(request):
+    orders = BillGeneration.objects.all()
+    return render(request, "bill_order_sqlite.html", {"orders": orders})
+
+
+def edit_bill_generation(request, pk):
+    order = get_object_or_404(BillGeneration, pk=pk)
+    
+    if request.method == "POST":
+        form = BillGenerationForm(request.POST, instance=order)
+        if form.is_valid():
+            form.save()
+            return redirect("bill_order_sqlite")  # Redirect to the purchase order list
+    else:
+        form = BillGenerationForm(instance=order)
+
+    return render(request, "edit_purchase_order_sqlite.html", {"form": form, "order": order})
+
+
+from django.contrib import messages
+
+
+def delete_bill_generation(request, pk):
+    order = get_object_or_404(BillGeneration, pk=pk)
+    
+    if request.method == "POST":
+        order.delete()
+        messages.success(request, "Bill deleted successfully.")
+        return redirect("bill_order_sqlite")  # Redirect to the purchase order list
+
+    return render(request, "delete_bill_order_sqlite.html", {"order": order})

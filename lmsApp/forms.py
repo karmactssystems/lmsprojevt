@@ -520,3 +520,66 @@ class FeedbackForm(forms.Form):
     )
     feedback_giver = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control'}), required=True)
     feedback_for_review = forms.CharField(widget=forms.HiddenInput(), required=True)  # Hidden field for review UID
+
+
+from django import forms
+from .models import PurchaseOrder, BillGeneration
+import couchdb
+from django.conf import settings
+
+class PurchaseOrderForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(PurchaseOrderForm, self).__init__(*args, **kwargs)
+
+        # Fetch books from CouchDB
+        COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE4['USER']}:{settings.COUCHDB_DATABASE4['PASSWORD']}@127.0.0.1:5984/"
+        server = couchdb.Server(COUCHDB_URL)
+
+        db_name = settings.COUCHDB_DATABASE4["NAME"]
+        if db_name in server:
+            db = server[db_name]
+            book_choices = [(book_doc.get("title", ""), book_doc.get("title", "")) for doc_id in db for book_doc in [db[doc_id]]]
+        else:
+            book_choices = []
+
+        book_choices.insert(0, ("", "Select a Book"))  # Add a placeholder
+
+        self.fields['book_name'].widget = forms.Select(choices=book_choices)
+
+    class Meta:
+        model = PurchaseOrder
+        fields = ['order_number', 'order_date', 'status', 'book_name']
+        widgets = {
+            'order_date': forms.DateInput(attrs={'type': 'date'}),
+            'status': forms.Select(choices=PurchaseOrder._meta.get_field('status').choices),
+        }
+
+
+class BillGenerationForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(BillGenerationForm, self).__init__(*args, **kwargs)
+
+        # Fetch books from CouchDB
+        COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE6['USER']}:{settings.COUCHDB_DATABASE6['PASSWORD']}@127.0.0.1:5984/"
+        server = couchdb.Server(COUCHDB_URL)
+
+        db_name = settings.COUCHDB_DATABASE6["NAME"]
+        if db_name in server:
+            db = server[db_name]
+            book_choices = [(book_doc.get("name", ""), book_doc.get("name", "")) for doc_id in db for book_doc in [db[doc_id]]]
+            print("Book choices:", book_choices)
+        else:
+            book_choices = []
+
+        book_choices.insert(0, ("", "Select a Supplier"))  # Add a placeholder
+
+        self.fields['supplier_name'].widget = forms.Select(choices=book_choices)
+
+    class Meta:
+        model = BillGeneration
+        fields = ['bill_number', 'bill_date', 'status', 'supplier_name']
+        widgets = {
+            'bill_date': forms.DateInput(attrs={'type': 'date'}),
+            'status': forms.Select(choices=BillGeneration._meta.get_field('status').choices),
+        }

@@ -137,4 +137,16 @@ urlpatterns = [
     path('feedback_list_neo/', views.feedback_list_neo, name='feedback_list_neo'),
     path('update_feedback_neo/<str:review_uid>/', views.update_feedback_neo, name='update_feedback_neo'),
     path('delete_feedback_neo/<str:review_uid>/', views.delete_feedback_neo, name='delete_feedback_neo'),
+
+    path('create_purchase_order_list_sqlite/', views.create_purchase_order_sqlite, name='create_purchase_order_sqlite'),
+    path("purchase_order_sqlite/", views.purchase_order_list, name="purchase_order_sqlite"),  # Add this line
+    path("edit_purchase_order_sqlite/<int:pk>/", views.edit_purchase_order, name="edit_purchase_order_sqlite"),
+    path("delete_purchase_order_sqlite/<int:pk>/", views.delete_purchase_order, name="delete_purchase_order_sqlite"),
+
+
+    path('create_bill_order_sqlite/', views.create_bill_generation_sqlite, name='create_bill_order_sqlite'),
+    path("bill_order_sqlite/", views.bill_generation_list, name="bill_order_sqlite"),  # Add this line
+    path("edit_bill_order_sqlite/<int:pk>/", views.edit_bill_generation, name="edit_bill_order_sqlite"),
+    path("delete_bill_order_sqlite/<int:pk>/", views.delete_bill_generation, name="delete_bill_order_sqlite"),
+    
 ]+ static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill Generation List</title>
+</head>
+<body>
+    <h2>Bill Generation List</h2>
+    
+    <a href="{% url 'create_bill_order_sqlite' %}">Create New Bill</a>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Bill Number</th>
+                <th>Bill Date</th>
+                <th>Status</th>
+                <th>Supplier Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td>{{ order.bill_number }}</td>
+                    <td>{{ order.bill_date }}</td>
+                    <td>
+                        {% if order.status == "1" %} Pending
+                        {% elif order.status == "2" %} Approved
+                        {% elif order.status == "3" %} Paid
+                        {% endif %}
+                    </td>
+                    <td>{{ order.supplier_name }}</td>
+                    <td>
+                        <a href="{% url 'edit_bill_order_sqlite' order.pk %}">Edit</a> |
+                        <a href="{% url 'delete_bill_order_sqlite' order.pk %}">Delete</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5">No bills found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

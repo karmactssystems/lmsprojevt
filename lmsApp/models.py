@@ -221,3 +221,36 @@ class FeedbackSchema(StructuredNode):
 
     def __str__(self):
         return f"Feedback by {self.feedback_giver}: {self.feedback_text}"
+
+
+
+class PurchaseOrder(models.Model):
+    order_number = models.CharField(max_length=250)
+    order_date = models.DateField()
+    status = models.CharField(max_length=2, choices=(('1','Pending'), ('2','Approved'), ('3','Delivered')), default = 1)
+    book_name = models.CharField(max_length=250, blank=True, null= True)
+    date_added = models.DateTimeField(default = timezone.now)
+    date_created = models.DateTimeField(auto_now = True)
+    delete_flag = models.IntegerField(default = 0)
+
+    class Meta:
+        verbose_name_plural = "Purchase Orders"
+
+    def __str__(self):
+        return self.order_number
+    
+
+class BillGeneration(models.Model):
+    bill_number = models.CharField(max_length=250)
+    bill_date = models.DateField()
+    status = models.CharField(max_length=2, choices=(('1','Pending'), ('2','Approved'), ('3','Paid')), default = 1)
+    supplier_name = models.CharField(max_length=50, blank=True, null= True)
+    date_added = models.DateTimeField(default = timezone.now)
+    date_created = models.DateTimeField(auto_now = True)
+    delete_flag = models.IntegerField(default = 0)
+
+    class Meta:
+        verbose_name_plural = "Bill Generation"
+
+    def __str__(self):
+        return self.bill_number

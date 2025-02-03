@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Bill Generation</title>
+</head>
+<body>
+    <h2>Are you sure you want to delete this bill?</h2>
+    <p><strong>Bill Number:</strong> {{ order.bill_number }}</p>
+    <p><strong>Supplier:</strong> {{ order.supplier_name }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Yes, Delete</button>
+    </form>
+    <a href="{% url 'bill_order_sqlite' %}">Cancel</a>
+</body>
+</html>

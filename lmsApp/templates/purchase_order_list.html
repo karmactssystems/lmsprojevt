@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Orders</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        a {
+            text-decoration: none;
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+    <h2>Purchase Orders</h2>
+
+    <a href="{% url 'create_purchase_order_sqlite' %}">Create New Purchase Order</a>
+    <a href="{% url 'bill_order_sqlite' %}">Bill Orders</a>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Order Number</th>
+                <th>Order Date</th>
+                <th>Status</th>
+                <th>Book Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td>{{ order.order_number }}</td>
+                    <td>{{ order.order_date }}</td>
+                    <td>
+                        {% if order.status == "1" %}
+                            Pending
+                        {% elif order.status == "2" %}
+                            Approved
+                        {% else %}
+                            Delivered
+                        {% endif %}
+                    </td>
+                    <td>{{ order.book_name }}</td>
+                    <td>
+                        <a href="{% url 'edit_purchase_order_sqlite' order.id %}">Edit</a> |
+                        <a href="{% url 'delete_purchase_order_sqlite' order.id %}" onclick="return confirm('Are you sure?');">Delete</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5">No purchase orders found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
