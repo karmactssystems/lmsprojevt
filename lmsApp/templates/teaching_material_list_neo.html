@@ -51,9 +51,14 @@
             text-decoration: underline;
         }
 
+        .flex-buttons{
+            display: flex;
+            gap: 1rem;
+        }
+
         .create-btn {
-            display: block;
-            text-align: center;
+            display: flex;
+            justify-content: center;
             margin: 20px 0;
         }
 
@@ -63,12 +68,20 @@
             padding: 10px 15px;
             text-decoration: none;
             border-radius: 5px;
+            margin-right: 10px;
+            /* Adds space between the buttons */
+        }
+
+        .create-btn a:hover {
+            background-color: #0056b3;
+            /* Darken the button color on hover */
         }
     </style>
 </head>
 
 <body>
     <h2>Teaching Materials Neo</h2>
+    <div class="flex-buttons">
     <div class="create-btn">
         <a href="{% url 'create_teaching_material_neo' %}">+ Add Teaching Material</a>
     </div>
@@ -76,6 +89,11 @@
     <div class="create-btn">
         <a href="{% url 'review_list_neo' %}">Review List</a>
     </div>
+
+    <div class="create-btn">
+        <a href="{% url 'feedback_list_neo' %}">Feedback List</a>
+    </div>
+</div>
 
     {% if materials %}
     <table>

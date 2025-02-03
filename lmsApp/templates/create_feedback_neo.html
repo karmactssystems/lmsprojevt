@@ -23,8 +23,7 @@
             background-color: white;
         }
 
-        th,
-        td {
+        th, td {
             padding: 12px;
             border-bottom: 1px solid #ddd;
             text-align: left;
@@ -64,36 +63,27 @@
             border-radius: 5px;
         }
     </style>
+
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
-    <h2>Review Neo</h2>
+    <h2>{{ title }}</h2>
     
-    <table>
-        <thead>
-            <tr>
-                <th>Reviewer</th>
-                <th>Review Text</th>
-                <th>Rating</th>
-                <th>Material</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for review in reviews %}
-            <tr>
-                <td>{{ review.reviewer_name }}</td>
-                <td>{{ review.review_text }}</td>
-                <td>{{ review.rating }}</td>
-                <td>{{ review.reviewed_material.name }}</td>
-                <td>
-                    <a href="{% url 'update_review_neo' review.uid %}">Edit</a> |
-                    <a href="{% url 'delete_review_neo' review.uid %}"
-                        onclick="return confirm('Are you sure?');">Delete</a> |
-                    <a href="{% url 'create_feedback_neo' review.uid %}">Add Feedback</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Submit Feedback</button>
+    </form>
+
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            flatpickr("input[type='date']", {
+                dateFormat: "Y-m-d",  // Date format you prefer
+            });
+        });
+    </script>
 </body>
 </html>

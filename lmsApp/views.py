@@ -1811,3 +1811,80 @@ def delete_review_neo(request, review_uid):
         material.save()
     return redirect('teaching_material_list_neo')
 
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from .forms import ReviewForm, FeedbackForm
+from .models import ReviewSchema, TeachingMaterialSchema, FeedbackSchema
+from django.http import Http404
+from datetime import datetime
+
+def create_feedback_neo(request, teaching_uid):
+    # Get the TeachingMaterialSchema node by the passed UID
+    material = ReviewSchema.nodes.get_or_none(uid=teaching_uid)
+
+    # If the material doesn't exist, raise a 404 error
+    if not material:
+        raise Http404("Teaching material not found.")
+
+    if request.method == 'POST':
+        form = FeedbackForm(request.POST)
+        if form.is_valid():
+            # Convert the feedback_date (which is a datetime.date object) to a datetime.datetime object
+            feedback_date = form.cleaned_data['feedback_date']
+            if feedback_date:
+                # Convert to datetime (we're assuming the time is 00:00:00)
+                feedback_date = datetime.combine(feedback_date, datetime.min.time())
+
+            # Create the review using the provided data
+            review = FeedbackSchema(
+                feedback_text=form.cleaned_data['feedback_text'],
+                feedback_date=feedback_date,  # Use the converted datetime.datetime
+                feedback_giver=form.cleaned_data['feedback_giver'],
+                feedback_for_review=material  # Associate the review with the teaching material
+            )
+            review.save()  # Save the review in Neo4j
+            return redirect('review_list_neo')  # Redirect to the review list
+    else:
+        form = FeedbackForm(initial={'feedback_for_review_uid': teaching_uid})  # Set the hidden field value
+
+    return render(request, 'create_feedback_neo.html', {'form': form, 'title': 'Create Review', 'material': material})
+
+
+
+
+# # List all reviews
+def feedback_list_neo(request):
+    # Fetch all reviews from Neo4j
+    reviews = FeedbackSchema.nodes.all()  # Replace Django's .objects with Neo4j's .nodes.all()
+
+    return render(request, 'feedback_list_neo.html', {'reviews': reviews, 'title': 'Review List'})
+
+
+# # Update review
+def update_feedback_neo(request, review_uid):
+    # Use Neo4j's get_or_none() method to fetch the object
+    review = FeedbackSchema.nodes.get_or_none(uid=review_uid)
+    
+    # If no review is found, raise a 404 error
+    if not review:
+        raise Http404("Review not found.")
+
+    if request.method == 'POST':
+        form = FeedbackForm(request.POST, instance=review)
+        if form.is_valid():
+            form.save()  # Save the updated form data to the review
+            return redirect('feedback_list_neo')  # Redirect to the feedback list
+    else:
+        form = FeedbackForm(instance=review)
+
+    return render(request, 'create_feedback_neo.html', {'form': form, 'title': 'Update Feedback'})
+
+
+def delete_feedback_neo(request, review_uid):
+    material = FeedbackSchema.nodes.get_or_none(uid=review_uid)
+    if material:
+        material.delete_flag = 1  # Soft delete instead of removing from DB
+        material.save()
+    return redirect('feedback_list_neo')
+

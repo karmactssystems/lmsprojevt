@@ -66,30 +66,29 @@
     </style>
 </head>
 <body>
-    <h2>Review Neo</h2>
+    <h2>Feedback Neo</h2>
     
     <table>
         <thead>
             <tr>
-                <th>Reviewer</th>
-                <th>Review Text</th>
-                <th>Rating</th>
-                <th>Material</th>
+                <th>Feedback Text</th>
+                <th>Feedback Date</th>
+                <th>Feedback Giver</th>
+                <th>Feedback Review ID</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for review in reviews %}
             <tr>
-                <td>{{ review.reviewer_name }}</td>
-                <td>{{ review.review_text }}</td>
-                <td>{{ review.rating }}</td>
-                <td>{{ review.reviewed_material.name }}</td>
+                <td>{{ review.feedback_text }}</td>
+                <td>{{ review.feedback_date }}</td>
+                <td>{{ review.feedback_giver }}</td>
+                <td>{{ review.reviewed_material }}</td>
                 <td>
                     <a href="{% url 'update_review_neo' review.uid %}">Edit</a> |
                     <a href="{% url 'delete_review_neo' review.uid %}"
                         onclick="return confirm('Are you sure?');">Delete</a> |
-                    <a href="{% url 'create_feedback_neo' review.uid %}">Add Feedback</a>
                 </td>
             </tr>
             {% endfor %}

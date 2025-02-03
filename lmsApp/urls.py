@@ -131,4 +131,10 @@ urlpatterns = [
     path('review_list_neo/', views.review_list_neo, name='review_list_neo'),
     path('update_review_neo/<str:review_uid>/', views.update_review_neo, name='update_review_neo'),
     path('delete_review_neo/<str:review_uid>/', views.delete_review_neo, name='delete_review_neo'),
+
+
+    path('create_feedback_neo/<str:teaching_uid>/', views.create_feedback_neo, name='create_feedback_neo'),
+    path('feedback_list_neo/', views.feedback_list_neo, name='feedback_list_neo'),
+    path('update_feedback_neo/<str:review_uid>/', views.update_feedback_neo, name='update_feedback_neo'),
+    path('delete_feedback_neo/<str:review_uid>/', views.delete_feedback_neo, name='delete_feedback_neo'),
 ]+ static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

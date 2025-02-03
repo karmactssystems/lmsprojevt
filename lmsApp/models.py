@@ -210,14 +210,14 @@ class ReviewSchema(StructuredNode):
     def __str__(self):
         return f"Review by {self.reviewer_name} for {self.reviewed_material.name}: {self.rating} stars"
     
-class Feedback(StructuredNode):
+class FeedbackSchema(StructuredNode):
     uid = UniqueIdProperty()
     feedback_text = StringProperty(required=True)
     feedback_date = DateTimeProperty(default=datetime.now)  # Automatically set the feedback date
     feedback_giver = StringProperty(required=True)
 
     # Relationship to Review
-    feedback_for_review = RelationshipTo('Review', 'GIVES_FEEDBACK')
+    feedback_for_review = RelationshipTo('ReviewSchema', 'GIVES_FEEDBACK')
 
     def __str__(self):
         return f"Feedback by {self.feedback_giver}: {self.feedback_text}"

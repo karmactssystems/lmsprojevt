@@ -511,3 +511,12 @@ class ReviewForm(forms.Form):
     reviewer_name = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control'}), required=True)
     reviewed_material_uid = forms.CharField(widget=forms.HiddenInput(), required=True)  # Hidden field for material UID
 
+
+class FeedbackForm(forms.Form):
+    feedback_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control'}), required=True)
+    feedback_date = forms.DateField(
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),  # 'type': 'date' enables the date picker
+        required=False
+    )
+    feedback_giver = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control'}), required=True)
+    feedback_for_review_uid = forms.CharField(widget=forms.HiddenInput(), required=True)  # Hidden field for review UID
