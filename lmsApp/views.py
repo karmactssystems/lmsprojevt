@@ -1015,7 +1015,7 @@ def delete_user_info(request, pk=None):
 import couchdb
 from django.conf import settings
 from django.shortcuts import render, redirect
-from .forms import StudentForm, TeacherForm, SubCategoryForm, BooksForm
+from .forms import StudentForm, TeacherForm, SubCategoryForm, BooksForm, JournalForm
 
 def create_student_couch(request):
     if request.method == "POST":
@@ -1446,3 +1446,110 @@ def delete_book_couch(request, book_id):
         db.delete(book_doc)  # Delete the document
 
     return redirect("book_list_couch")
+
+
+def create_journal_couch(request):
+    if request.method == "POST":
+        form = JournalForm(request.POST)
+        if form.is_valid():
+            # Connect to CouchDB
+            COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE5['USER']}:{settings.COUCHDB_DATABASE5['PASSWORD']}@127.0.0.1:5984/"
+            server = couchdb.Server(COUCHDB_URL)
+
+            db_name = settings.COUCHDB_DATABASE5["NAME"]
+            if db_name in server:
+                db = server[db_name]
+            else:
+                db = server.create(db_name)
+
+            # Save Book Record
+            book_data = form.cleaned_data
+            doc_id, _ = db.save(book_data)
+
+            return redirect("journal_list_couch")  # Redirect to book list page
+
+    else:
+        form = JournalForm()
+
+    return render(request, "create_journal_couch.html", {"form": form})
+
+
+def journal_list_couch(request):
+    # Connect to CouchDB
+    COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE5['USER']}:{settings.COUCHDB_DATABASE5['PASSWORD']}@127.0.0.1:5984/"
+    server = couchdb.Server(COUCHDB_URL)
+
+    db_name = settings.COUCHDB_DATABASE5["NAME"]
+    if db_name in server:
+        db = server[db_name]
+    else:
+        db = server.create(db_name)
+
+    # Retrieve all book documents
+    books = []
+    for doc_id in db:
+        book_doc = db[doc_id]
+        status_code = book_doc.get("status", "1")  # Default to 'Active' if status is missing
+
+        # Map the status code to a human-readable label
+        status_label = "Active" if status_code == "1" else "Inactive"
+
+        books.append({
+            "id": doc_id,
+            "title": book_doc.get("title", ""),
+            "description": book_doc.get("description", ""),
+            "author": book_doc.get("author", ""),
+            "publisher": book_doc.get("publisher", ""),
+            "status": status_label,
+        })
+
+    return render(request, "journal_list_couch.html", {"books": books})
+
+# Edit Book
+def edit_journal_couch(request, book_id):
+    COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE5['USER']}:{settings.COUCHDB_DATABASE5['PASSWORD']}@127.0.0.1:5984/"
+    server = couchdb.Server(COUCHDB_URL)
+
+    db_name = settings.COUCHDB_DATABASE5["NAME"]
+    if db_name in server:
+        db = server[db_name]
+    else:
+        db = server.create(db_name)
+
+    # Retrieve the book document
+    book_doc = db.get(book_id)
+    if not book_doc:
+        return redirect("journal_list_couch")
+    
+    if request.method == "POST":
+        form = JournalForm(request.POST)
+        if form.is_valid():
+            # Update Book Record
+            book_data = form.cleaned_data
+            book_doc.update(book_data)
+            db[book_id] = book_doc
+
+            return redirect("journal_list_couch")
+        
+    else:
+        form = JournalForm(initial=book_doc)
+    
+    return render(request, "edit_journal_couch.html", {"form": form})
+
+# Delete Book
+def delete_journal_couch(request, book_id):
+    COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE5['USER']}:{settings.COUCHDB_DATABASE5['PASSWORD']}@127.0.0.1:5984/"
+    server = couchdb.Server(COUCHDB_URL)
+
+    db_name = settings.COUCHDB_DATABASE5["NAME"]
+    if db_name in server:
+        db = server[db_name]
+    else:
+        db = server.create(db_name)
+
+    # Retrieve the book document
+    book_doc = db.get(book_id)
+    if book_doc:
+        db.delete(book_doc)  # Delete the document
+
+    return redirect("journal_list_couch")
