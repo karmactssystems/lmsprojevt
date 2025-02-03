@@ -503,3 +503,11 @@ class TeachingMaterialForm(forms.Form):
     teaching_reference = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-control'}))
 
 
+# forms.py
+
+class ReviewForm(forms.Form):
+    review_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control'}), required=True)
+    rating = forms.IntegerField(min_value=1, max_value=5, widget=forms.NumberInput(attrs={'class': 'form-control'}), required=True)
+    reviewer_name = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control'}), required=True)
+    reviewed_material_uid = forms.CharField(widget=forms.HiddenInput(), required=True)  # Hidden field for material UID
+

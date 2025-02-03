@@ -197,7 +197,8 @@ class TeachingMaterialSchema(StructuredNode):
         return f"{self.name or ''} {self.subject or ''} {self.course or ''} {self.teaching_reference or ''}"
     
 
-class Review(StructuredNode):
+class ReviewSchema(StructuredNode):
+    uid = UniqueIdProperty()
     review_text = StringProperty(required=True)
     rating = IntegerProperty(min=1, max=5, required=True)  # Rating between 1 to 5
     review_date = DateTimeProperty(default=datetime.now)  # Automatically set the review date
@@ -210,6 +211,7 @@ class Review(StructuredNode):
         return f"Review by {self.reviewer_name} for {self.reviewed_material.name}: {self.rating} stars"
     
 class Feedback(StructuredNode):
+    uid = UniqueIdProperty()
     feedback_text = StringProperty(required=True)
     feedback_date = DateTimeProperty(default=datetime.now)  # Automatically set the feedback date
     feedback_giver = StringProperty(required=True)

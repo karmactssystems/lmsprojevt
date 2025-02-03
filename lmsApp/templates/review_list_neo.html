@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teaching Materials Neo</title>
+    <title>{{ title }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -66,56 +65,34 @@
         }
     </style>
 </head>
-
 <body>
-    <h2>Teaching Materials Neo</h2>
-    <div class="create-btn">
-        <a href="{% url 'create_teaching_material_neo' %}">+ Add Teaching Material</a>
-    </div>
-
-    <div class="create-btn">
-        <a href="{% url 'review_list_neo' %}">Review List</a>
-    </div>
-
-    {% if materials %}
+    <h2>Review Neo</h2>
+    
     <table>
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Subject</th>
-                <th>Course</th>
-                <th>Reference</th>
-                <th>UID</th>
+                <th>Reviewer</th>
+                <th>Review Text</th>
+                <th>Rating</th>
+                <th>Material</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            {% for material in materials %}
+            {% for review in reviews %}
             <tr>
-                <td>{{ material.name }}</td>
-                <td>{{ material.subject }}</td>
-                <td>{{ material.course }}</td>
+                <td>{{ review.reviewer_name }}</td>
+                <td>{{ review.review_text }}</td>
+                <td>{{ review.rating }}</td>
+                <td>{{ review.reviewed_material.name }}</td>
                 <td>
-                    {% if material.teaching_reference %}
-                    <a href="{{ material.teaching_reference }}" download>Download</a>
-                    {% else %}
-                    No Reference
-                    {% endif %}
-                </td>
-                <td>{{ material.uid }}</td>
-                <td class="actions">
-                    <a href="{% url 'update_teaching_material_neo' material.uid %}">Edit</a> |
-                    <a href="{% url 'delete_teaching_material_neo' material.uid %}"
+                    <a href="{% url 'update_review_neo' review.uid %}">Edit</a> |
+                    <a href="{% url 'delete_review_neo' review.uid %}"
                         onclick="return confirm('Are you sure?');">Delete</a> |
-                    <a href="{% url 'create_review_neo' material.uid %}">Add Review</a> |
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-    {% else %}
-    <p>No teaching materials found.</p>
-    {% endif %}
 </body>
-
 </html>
