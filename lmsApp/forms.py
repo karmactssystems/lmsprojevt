@@ -485,3 +485,11 @@ class JournalForm(forms.Form):
         # Dynamically update the sub_category field with the retrieved choices
         self.fields['sub_category'] = forms.ChoiceField(choices=sub_category_choices, label="Sub Category", required=True)
 
+
+
+class SupplierForm(forms.Form):
+    name = forms.CharField(max_length=250, label="Supplier Name", required=True)
+    email = forms.EmailField(label="Email Address", required=True)
+    phone = forms.CharField(max_length=20, label="Phone Number", required=True)
+    address = forms.CharField(widget=forms.Textarea, label="Address", required=True)
+    status = forms.ChoiceField(choices=[('1', 'Active'), ('0', 'Inactive')], label="Status", initial='1')
