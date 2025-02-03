@@ -1,22 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teaching Materials Neo</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 20px; padding: 20px; }
-        h2 { text-align: center; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background-color: white; }
-        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
-        th { background-color: #007BFF; color: white; }
-        tr:hover { background-color: #f1f1f1; }
-        .actions a { margin-right: 10px; color: #007BFF; text-decoration: none; font-weight: bold; }
-        .actions a:hover { text-decoration: underline; }
-        .create-btn { display: block; text-align: center; margin: 20px 0; }
-        .create-btn a { background: #007BFF; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 20px;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .actions a {
+            margin-right: 10px;
+            color: #007BFF;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .actions a:hover {
+            text-decoration: underline;
+        }
+
+        .create-btn {
+            display: block;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .create-btn a {
+            background: #007BFF;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
     </style>
 </head>
+
 <body>
     <h2>Teaching Materials Neo</h2>
     <div class="create-btn">
@@ -41,12 +91,18 @@
                 <td>{{ material.name }}</td>
                 <td>{{ material.subject }}</td>
                 <td>{{ material.course }}</td>
-                <td>{{ material.teaching_reference }}</td>
+                <td>
+                    {% if material.teaching_reference %}
+                    <a href="{{ material.teaching_reference }}" download>Download</a>
+                    {% else %}
+                    No Reference
+                    {% endif %}
+                </td>
                 <td>{{ material.uid }}</td>
                 <td class="actions">
                     <a href="{% url 'update_teaching_material_neo' material.uid %}">Edit</a> |
-                    <a href="{% url 'delete_teaching_material_neo' material.uid %}" 
-                       onclick="return confirm('Are you sure?');">Delete</a>
+                    <a href="{% url 'delete_teaching_material_neo' material.uid %}"
+                        onclick="return confirm('Are you sure?');">Delete</a>
                 </td>
             </tr>
             {% endfor %}
@@ -56,4 +112,5 @@
     <p>No teaching materials found.</p>
     {% endif %}
 </body>
+
 </html>

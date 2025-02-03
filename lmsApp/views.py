@@ -1671,17 +1671,38 @@ def teaching_material_list_neo(request):
     return render(request, 'teaching_material_list_neo.html', {'materials': materials})
 
 # Create View
+import uuid
+from django.shortcuts import render, redirect
+from .forms import TeachingMaterialForm
+from .models import TeachingMaterialSchema
+from django.core.files.storage import FileSystemStorage
+
 def create_teaching_material_neo(request):
     if request.method == 'POST':
-        form = TeachingMaterialForm(request.POST)
+        form = TeachingMaterialForm(request.POST, request.FILES)
         if form.is_valid():
-            material = TeachingMaterialSchema(**form.cleaned_data)
+            # Handle file saving
+            teaching_reference_url = None
+            if form.cleaned_data['teaching_reference']:
+                file = form.cleaned_data['teaching_reference']
+                fs = FileSystemStorage()
+                filename = fs.save(file.name, file)
+                teaching_reference_url = fs.url(filename)
+
+            # Create new teaching material instance
+            material = TeachingMaterialSchema(
+                name=form.cleaned_data['name'],
+                subject=form.cleaned_data['subject'],
+                course=form.cleaned_data['course'],
+                teaching_reference=teaching_reference_url
+            )
             if not material.uid:  # Ensure UID is not regenerated
-                material.uid = uuid.uuid4().hex  
+                material.uid = uuid.uuid4().hex
             material.save()
             return redirect('teaching_material_list_neo')
     else:
         form = TeachingMaterialForm()
+    
     return render(request, 'teaching_material_form_neo.html', {'form': form, 'title': 'Create Teaching Material Neo'})
 
 
@@ -1692,10 +1713,20 @@ def update_teaching_material_neo(request, material_id):
         return redirect('teaching_material_list_neo')
 
     if request.method == 'POST':
-        form = TeachingMaterialForm(request.POST)
+        form = TeachingMaterialForm(request.POST, request.FILES)
         if form.is_valid():
-            for key, value in form.cleaned_data.items():
-                setattr(material, key, value)
+            # Update fields
+            material.name = form.cleaned_data['name']
+            material.subject = form.cleaned_data['subject']
+            material.course = form.cleaned_data['course']
+            
+            # Update the file if a new one is uploaded
+            if form.cleaned_data['teaching_reference']:
+                file = form.cleaned_data['teaching_reference']
+                fs = FileSystemStorage()
+                filename = fs.save(file.name, file)
+                material.teaching_reference = fs.url(filename)
+
             material.save()
             return redirect('teaching_material_list_neo')
     else:
