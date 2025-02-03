@@ -1660,3 +1660,61 @@ def delete_supplier_couch(request, book_id):
         db.delete(book_doc)  # Delete the document
 
     return redirect("supplier_list_couch")
+
+
+from .models import TeachingMaterialSchema
+from .forms import TeachingMaterialForm
+
+# List View
+def teaching_material_list_neo(request):
+    materials = TeachingMaterialSchema.nodes.filter(delete_flag=0)
+    return render(request, 'teaching_material_list_neo.html', {'materials': materials})
+
+# Create View
+def create_teaching_material_neo(request):
+    if request.method == 'POST':
+        form = TeachingMaterialForm(request.POST)
+        if form.is_valid():
+            material = TeachingMaterialSchema(**form.cleaned_data)
+            if not material.uid:  # Ensure UID is not regenerated
+                material.uid = uuid.uuid4().hex  
+            material.save()
+            return redirect('teaching_material_list_neo')
+    else:
+        form = TeachingMaterialForm()
+    return render(request, 'teaching_material_form_neo.html', {'form': form, 'title': 'Create Teaching Material Neo'})
+
+
+# Update View
+def update_teaching_material_neo(request, material_id):
+    material = TeachingMaterialSchema.nodes.get_or_none(uid=material_id)
+    if not material:
+        return redirect('teaching_material_list_neo')
+
+    if request.method == 'POST':
+        form = TeachingMaterialForm(request.POST)
+        if form.is_valid():
+            for key, value in form.cleaned_data.items():
+                setattr(material, key, value)
+            material.save()
+            return redirect('teaching_material_list_neo')
+    else:
+        initial_data = {
+            'name': material.name,
+            'subject': material.subject,
+            'course': material.course,
+            'teaching_reference': material.teaching_reference,
+        }
+        form = TeachingMaterialForm(initial=initial_data)
+
+    return render(request, 'teaching_material_form_neo.html', {'form': form, 'title': 'Update Teaching Material Neo'})
+
+
+# Delete View
+def delete_teaching_material_neo(request, material_id):
+    material = TeachingMaterialSchema.nodes.get_or_none(uid=material_id)
+    if material:
+        material.delete_flag = 1  # Soft delete instead of removing from DB
+        material.save()
+    return redirect('teaching_material_list_neo')
+

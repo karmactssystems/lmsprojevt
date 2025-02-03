@@ -493,3 +493,12 @@ class SupplierForm(forms.Form):
     phone = forms.CharField(max_length=20, label="Phone Number", required=True)
     address = forms.CharField(widget=forms.Textarea, label="Address", required=True)
     status = forms.ChoiceField(choices=[('1', 'Active'), ('0', 'Inactive')], label="Status", initial='1')
+
+
+
+class TeachingMaterialForm(forms.Form):
+    name = forms.CharField(required=False, max_length=255, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    subject = forms.CharField(required=False, max_length=255, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    course = forms.CharField(required=False, max_length=255, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    teaching_reference = forms.CharField(required=False, max_length=255, widget=forms.TextInput(attrs={'class': 'form-control'}))
+

@@ -9,7 +9,6 @@ from PIL import Image
 from django.contrib.auth.models import User
 from django.contrib.auth.base_user import BaseUserManager
 from django.conf import settings
-from neomodel import StructuredNode, StringProperty, IntegerProperty,UniqueIdProperty, RelationshipTo, DateTimeProperty
 from datetime import datetime
 
 # Create your models here.
@@ -149,7 +148,7 @@ class Borrow(models.Model):
 
 
 # Create your models here.
-
+from neomodel import StructuredNode, StringProperty, IntegerProperty,UniqueIdProperty, RelationshipTo, DateTimeProperty
 #neo4j models
 class City(StructuredNode):
     code = StringProperty(unique_index=True, required=True)
@@ -187,6 +186,7 @@ class StudentSchema(StructuredNode):
 
 #teaching material, review and feedback model for neo
 class TeachingMaterialSchema(StructuredNode):
+    uid = UniqueIdProperty()
     name = StringProperty(index=True, required=False)
     subject = StringProperty(index=True, required=False)
     course = StringProperty(index=True, required=False)

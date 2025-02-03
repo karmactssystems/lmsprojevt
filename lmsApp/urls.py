@@ -122,7 +122,10 @@ urlpatterns = [
     path('delete_supplier_couch/<str:book_id>/', views.delete_supplier_couch, name='delete_supplier_couch'),
 
 
-
+    path('teaching_material_list_neo/', views.teaching_material_list_neo, name='teaching_material_list_neo'),
+    path('create_teaching_material_neo/', views.create_teaching_material_neo, name='create_teaching_material_neo'),
+    path('update_teaching_material_neo/<str:material_id>/', views.update_teaching_material_neo, name='update_teaching_material_neo'),
+    path('delete_teaching_material_neo/<str:material_id>/', views.delete_teaching_material_neo, name='delete_teaching_material_neo'),
 
     
 ]+ static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
