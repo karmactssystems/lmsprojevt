@@ -375,3 +375,65 @@ class SubCategoryForm(forms.Form):
     name = forms.CharField(max_length=250)
     description = forms.CharField(max_length=250)
     status = forms.ChoiceField(choices=[('1', 'Active'), ('2', 'Inactive')], initial='1')
+
+from django.conf import settings
+import couchdb
+
+from django import forms
+from django.conf import settings
+import couchdb
+
+from django import forms
+from django.conf import settings
+import couchdb
+
+from django import forms
+from django.conf import settings
+import couchdb
+
+class BooksForm(forms.Form):
+    isbn = forms.CharField(max_length=13, label="ISBN", required=True)
+    title = forms.CharField(max_length=250, label="Title", required=True)
+    description = forms.CharField(max_length=500, label="Description", widget=forms.Textarea, required=False)
+    author = forms.CharField(max_length=250, label="Author", required=True)
+    publisher = forms.CharField(max_length=250, label="Publisher", required=True)
+    status = forms.ChoiceField(choices=[('1', 'Active'), ('2', 'Inactive')], initial='1', label="Status")
+
+    # Initialize sub_category_choices dynamically in the form's __init__ method
+    def __init__(self, *args, **kwargs):
+        super(BooksForm, self).__init__(*args, **kwargs)
+
+        # Fetch subcategories from CouchDB
+        COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE3['USER']}:{settings.COUCHDB_DATABASE3['PASSWORD']}@127.0.0.1:5984/"
+        server = couchdb.Server(COUCHDB_URL)
+        db_name = settings.COUCHDB_DATABASE3["NAME"]
+
+        try:
+            if db_name in server:
+                db = server[db_name]
+            else:
+                db = server.create(db_name)
+
+            # Retrieve all subcategories from the CouchDB database
+            sub_category_choices = []
+            for doc_id in db:
+                doc = db[doc_id]
+                # Check if the document is a sub-category (based on the presence of 'name' field)
+                if 'name' in doc:
+                    sub_category_name = doc.get('name', 'No Name Found')
+                    sub_category_choices.append((doc_id, sub_category_name))
+
+            # In case there are no subcategories, default to an empty choice
+            if not sub_category_choices:
+                sub_category_choices = [('0', 'No Subcategories Found')]
+
+            # Log the subcategory choices to the console
+            print("Subcategory Choices:", sub_category_choices)
+
+        except Exception as e:
+            # Handle any CouchDB connection errors
+            sub_category_choices = [('0', f'Error fetching subcategories: {str(e)}')]
+            print("Error fetching subcategories:", str(e))
+
+        # Dynamically update the sub_category field with the retrieved choices
+        self.fields['sub_category'] = forms.ChoiceField(choices=sub_category_choices, label="Sub Category", required=True)
