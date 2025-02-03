@@ -1848,7 +1848,7 @@ def create_feedback_neo(request, teaching_uid):
     else:
         form = FeedbackForm(initial={'feedback_for_review': teaching_uid})  # Set the hidden field value
 
-    return render(request, 'create_feedback_neo.html', {'form': form, 'title': 'Create Review', 'material': material})
+    return render(request, 'create_feedback_neo.html', {'form': form, 'title': 'Create Feedback', 'material': material})
 
 
 
