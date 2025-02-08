@@ -10,6 +10,12 @@
 
     <!-- Create Button -->
     <a href="{% url 'create_sub_category_couch' %}"><button>Create Sub Category</button></a>
+    <a href="{% url 'create_student_couch' %}"><button>Create Student</button></a>
+    <a href="{% url 'create_teacher_couch' %}"><button>Create Teacher</button></a>
+    <a href="{% url 'journal_list_couch' %}"><button>Journal</button></a>
+    <a href="{% url 'supplier_list_couch' %}"><button>Supplier</button></a>
+    <a href="{% url 'book_list_couch' %}"><button>Books</button></a>
+    <a href="{% url 'material_list_couch' %}"><button>Teaching Material</button></a>
 
     <!-- Check if there are sub-categories -->
     {% if sub_categories %}

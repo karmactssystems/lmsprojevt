@@ -1664,7 +1664,7 @@ def delete_supplier_couch(request, book_id):
 
 def create_material_couch(request):
     if request.method == "POST":
-        form = SupplierForm(request.POST)
+        form = TeachingMaterialForm(request.POST)
         if form.is_valid():
             # Connect to CouchDB
             COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE7['USER']}:{settings.COUCHDB_DATABASE7['PASSWORD']}@127.0.0.1:5984/"
@@ -1683,7 +1683,7 @@ def create_material_couch(request):
             return redirect("material_list_couch")  # Redirect to book list page
 
     else:
-        form = SupplierForm()
+        form = TeachingMaterialForm()
 
     return render(request, "create_material_couch.html", {"form": form})
 
@@ -1710,7 +1710,7 @@ def material_list_couch(request):
             "course": book_doc.get("course", ""),
             "teaching_reference": book_doc.get("teaching_reference", ""),
         })
-
+    print("Books", books)
     return render(request, "material_list_couch.html", {"books": books})
 
 # Edit Book
@@ -1730,7 +1730,7 @@ def edit_material_couch(request, book_id):
         return redirect("material_list_couch")
     
     if request.method == "POST":
-        form = SupplierForm(request.POST)
+        form = TeachingMaterialForm(request.POST)
         if form.is_valid():
             # Update Book Record
             book_data = form.cleaned_data
@@ -1740,7 +1740,7 @@ def edit_material_couch(request, book_id):
             return redirect("material_list_couch")
         
     else:
-        form = SupplierForm(initial=book_doc)
+        form = TeachingMaterialForm(initial=book_doc)
     
     return render(request, "edit_material_couch.html", {"form": form})
 

@@ -91,10 +91,11 @@
     <a href="{% url 'create_material_couch' %}"><button>Create Teaching Material</button></a>
 
     <!-- Student Table -->
-    {% if students %}
+    {% if books %}
     <table>
         <thead>
             <tr>
+                <th>ID</th>
                 <th>Name</th>
                 <th>Subject</th>
                 <th>Course</th>
@@ -103,16 +104,16 @@
             </tr>
         </thead>
         <tbody>
-            {% for student in students %}
+            {% for book in books %}
             <tr>
-                <td>{{ student.id }}</td>
-                <td>{{ student.name }}</td>
-                <td>{{ student.subject }}</td>
-                <td>{{ student.course }}</td>
-                <td>{{ student.teaching_reference }}</td>
+                <td>{{ book.id }}</td>
+                <td>{{ book.name }}</td>
+                <td>{{ book.subject }}</td>
+                <td>{{ book.course }}</td>
+                <td>{{ book.teaching_reference }}</td>
                 <td>
-                    <a href="{% url 'edit_material_couch' student.id %}">Edit</a> |
-                    <a href="{% url 'delete_material_couch' student.id %}"
+                    <a href="{% url 'edit_material_couch' book.id %}">Edit</a> |
+                    <a href="{% url 'delete_material_couch' book.id %}"
                         onclick="return confirm('Are you sure you want to delete this student?');">Delete</a>
                 </td>
             </tr>
@@ -120,7 +121,7 @@
         </tbody>
     </table>
     {% else %}
-    <p>No students found.</p>
+    <p>No Teaching Materials found.</p>
     {% endif %}
 </body>
 
