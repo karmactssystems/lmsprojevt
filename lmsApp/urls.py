@@ -121,6 +121,11 @@ urlpatterns = [
     path('edit_supplier_couch/<str:book_id>/', views.edit_supplier_couch, name='edit_supplier_couch'),
     path('delete_supplier_couch/<str:book_id>/', views.delete_supplier_couch, name='delete_supplier_couch'),
 
+    path('create_material_couch/', views.create_material_couch, name='create_material_couch'),
+    path('material_list_couch/', views.material_list_couch, name='material_list_couch'),
+    path('edit_material_couch/<str:book_id>/', views.edit_material_couch, name='edit_material_couch'),
+    path('delete_material_couch/<str:book_id>/', views.delete_material_couch, name='delete_material_couch'),
+
 
     path('teaching_material_list_neo/', views.teaching_material_list_neo, name='teaching_material_list_neo'),
     path('create_teaching_material_neo/', views.create_teaching_material_neo, name='create_teaching_material_neo'),

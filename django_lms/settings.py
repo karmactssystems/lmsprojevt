@@ -128,6 +128,13 @@ COUCHDB_DATABASE6 = {
     "PASSWORD": "root",  # Optional: CouchDB password
 }
 
+COUCHDB_DATABASE7 = {
+    "HOST": "http://127.0.0.1:5984",
+    "NAME": "teaching-material",  # Change to your desired database name
+    "USER": "root",  # Optional: CouchDB username
+    "PASSWORD": "root",  # Optional: CouchDB password
+}
+
 
 NEOMODEL_NEO4J_BOLT_URL = os.environ.get('NEO4J_BOLT_URL','bolt://neo4j:Rutik@123@localhost:7687')
 NEOMODEL_SIGNALS = True

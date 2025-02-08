@@ -500,7 +500,7 @@ class TeachingMaterialForm(forms.Form):
     name = forms.CharField(required=False, max_length=255, widget=forms.TextInput(attrs={'class': 'form-control'}))
     subject = forms.CharField(required=False, max_length=255, widget=forms.TextInput(attrs={'class': 'form-control'}))
     course = forms.CharField(required=False, max_length=255, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    teaching_reference = forms.FileField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-control'}))
+    teaching_reference = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
 
 
 # forms.py

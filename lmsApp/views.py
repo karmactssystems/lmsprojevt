@@ -1662,6 +1662,106 @@ def delete_supplier_couch(request, book_id):
     return redirect("supplier_list_couch")
 
 
+def create_material_couch(request):
+    if request.method == "POST":
+        form = SupplierForm(request.POST)
+        if form.is_valid():
+            # Connect to CouchDB
+            COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE7['USER']}:{settings.COUCHDB_DATABASE7['PASSWORD']}@127.0.0.1:5984/"
+            server = couchdb.Server(COUCHDB_URL)
+
+            db_name = settings.COUCHDB_DATABASE7["NAME"]
+            if db_name in server:
+                db = server[db_name]
+            else:
+                db = server.create(db_name)
+
+            # Save Book Record
+            book_data = form.cleaned_data
+            doc_id, _ = db.save(book_data)
+
+            return redirect("material_list_couch")  # Redirect to book list page
+
+    else:
+        form = SupplierForm()
+
+    return render(request, "create_material_couch.html", {"form": form})
+
+
+def material_list_couch(request):
+    # Connect to CouchDB
+    COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE7['USER']}:{settings.COUCHDB_DATABASE7['PASSWORD']}@127.0.0.1:5984/"
+    server = couchdb.Server(COUCHDB_URL)
+
+    db_name = settings.COUCHDB_DATABASE7["NAME"]
+    if db_name in server:
+        db = server[db_name]
+    else:
+        db = server.create(db_name)
+
+    # Retrieve all book documents
+    books = []
+    for doc_id in db:
+        book_doc = db[doc_id]
+        books.append({
+            "id": doc_id,
+            "name": book_doc.get("name", ""),
+            "subject": book_doc.get("subject", ""),
+            "course": book_doc.get("course", ""),
+            "teaching_reference": book_doc.get("teaching_reference", ""),
+        })
+
+    return render(request, "material_list_couch.html", {"books": books})
+
+# Edit Book
+def edit_material_couch(request, book_id):
+    COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE7['USER']}:{settings.COUCHDB_DATABASE7['PASSWORD']}@127.0.0.1:5984/"
+    server = couchdb.Server(COUCHDB_URL)
+
+    db_name = settings.COUCHDB_DATABASE7["NAME"]
+    if db_name in server:
+        db = server[db_name]
+    else:
+        db = server.create(db_name)
+
+    # Retrieve the book document
+    book_doc = db.get(book_id)
+    if not book_doc:
+        return redirect("material_list_couch")
+    
+    if request.method == "POST":
+        form = SupplierForm(request.POST)
+        if form.is_valid():
+            # Update Book Record
+            book_data = form.cleaned_data
+            book_doc.update(book_data)
+            db[book_id] = book_doc
+
+            return redirect("material_list_couch")
+        
+    else:
+        form = SupplierForm(initial=book_doc)
+    
+    return render(request, "edit_material_couch.html", {"form": form})
+
+# Delete Book
+def delete_material_couch(request, book_id):
+    COUCHDB_URL = f"http://{settings.COUCHDB_DATABASE7['USER']}:{settings.COUCHDB_DATABASE7['PASSWORD']}@127.0.0.1:5984/"
+    server = couchdb.Server(COUCHDB_URL)
+
+    db_name = settings.COUCHDB_DATABASE7["NAME"]
+    if db_name in server:
+        db = server[db_name]
+    else:
+        db = server.create(db_name)
+
+    # Retrieve the book document
+    book_doc = db.get(book_id)
+    if book_doc:
+        db.delete(book_doc)  # Delete the document
+
+    return redirect("material_list_couch")
+
 from .models import TeachingMaterialSchema
 from .forms import TeachingMaterialForm
 
