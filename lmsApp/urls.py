@@ -132,13 +132,13 @@ urlpatterns = [
     path('update_teaching_material_neo/<str:material_id>/', views.update_teaching_material_neo, name='update_teaching_material_neo'),
     path('delete_teaching_material_neo/<str:material_id>/', views.delete_teaching_material_neo, name='delete_teaching_material_neo'),
 
-    path('create_review_neo/<str:teaching_uid>/', views.create_review_neo, name='create_review_neo'),
+    path('create_review_neo/', views.create_review_neo, name='create_review_neo'),
     path('review_list_neo/', views.review_list_neo, name='review_list_neo'),
     path('update_review_neo/<str:review_uid>/', views.update_review_neo, name='update_review_neo'),
     path('delete_review_neo/<str:review_uid>/', views.delete_review_neo, name='delete_review_neo'),
 
 
-    path('create_feedback_neo/<str:teaching_uid>/', views.create_feedback_neo, name='create_feedback_neo'),
+    path('create_feedback_neo/', views.create_feedback_neo, name='create_feedback_neo'),
     path('feedback_list_neo/', views.feedback_list_neo, name='feedback_list_neo'),
     path('update_feedback_neo/<str:review_uid>/', views.update_feedback_neo, name='update_feedback_neo'),
     path('delete_feedback_neo/<str:review_uid>/', views.delete_feedback_neo, name='delete_feedback_neo'),

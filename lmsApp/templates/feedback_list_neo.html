@@ -67,6 +67,8 @@
 </head>
 <body>
     <h2>Feedback Neo</h2>
+    <a href="{% url 'create_feedback_neo' %}"><button>+Create Feedback</button></a>
+
     
     <table>
         <thead>
@@ -74,7 +76,6 @@
                 <th>Feedback Text</th>
                 <th>Feedback Date</th>
                 <th>Feedback Giver</th>
-                <th>UID</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -84,10 +85,9 @@
                 <td>{{ review.feedback_text }}</td>
                 <td>{{ review.feedback_date }}</td>
                 <td>{{ review.feedback_giver }}</td>
-                <td>{{ review.uid }}</td>
                 <td>
-                    <a href="{% url 'update_review_neo' review.uid %}">Edit</a> |
-                    <a href="{% url 'delete_review_neo' review.uid %}"
+                    <a href="{% url 'update_feedback_neo' review.uid %}">Edit</a> |
+                    <a href="{% url 'delete_feedback_neo' review.uid %}"
                         onclick="return confirm('Are you sure?');">Delete</a> |
                 </td>
             </tr>

@@ -519,7 +519,6 @@ class FeedbackForm(forms.Form):
         required=False
     )
     feedback_giver = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control'}), required=True)
-    feedback_for_review = forms.CharField(widget=forms.HiddenInput(), required=True)  # Hidden field for review UID
 
 
 from django import forms

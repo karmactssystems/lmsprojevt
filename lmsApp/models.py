@@ -205,7 +205,7 @@ class ReviewSchema(StructuredNode):
     reviewer_name = StringProperty(required=True)
 
     # Relationship to TeachingMaterialSchema
-    reviewed_material = RelationshipTo('TeachingMaterialSchema', 'REVIEWS')
+    reviewed_material = StringProperty(required=True)
 
     def __str__(self):
         return f"Review by {self.reviewer_name} for {self.reviewed_material.name}: {self.rating} stars"
@@ -217,7 +217,7 @@ class FeedbackSchema(StructuredNode):
     feedback_giver = StringProperty(required=True)
 
     # Relationship to Review
-    feedback_for_review = RelationshipTo('ReviewSchema', 'GIVES_FEEDBACK')
+    # feedback_for_review = StringProperty(required=True)
 
     def __str__(self):
         return f"Feedback by {self.feedback_giver}: {self.feedback_text}"
