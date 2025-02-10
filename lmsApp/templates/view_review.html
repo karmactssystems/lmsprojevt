@@ -1,0 +1,43 @@
+{% load static %} {% load humanize %}
+
+<style>
+    #uni_modal .modal-footer {
+        display: none;
+    }
+    
+    #uni_modal .modal-sub-footer {
+        display: flex;
+    }
+</style>
+
+<div class="container-fluid" id="e-details">
+    <div class="lh-1">
+        <dl>
+            <dt>Book</dt>
+            <dd class="ps-4">{{ review.book }}</dd>
+            
+            <dt>Reviewer</dt>
+            <dd class="ps-4">{{ review.reviewer_name }}</dd>
+            
+            <dt>Rating</dt>
+            <dd class="ps-4">
+                {% for _ in ""|center:review.rating %}⭐{% endfor %}
+            </dd>
+            
+            <dt>Review Text</dt>
+            <dd class="ps-4">{{ review.review_text }}</dd>
+            
+            <dt>Review Date</dt>
+            <dd class="ps-4">{{ review.review_date|date:"F d, Y h:i A" }}</dd>
+            
+            <dt>Status</dt>
+            <dd class="ps-4">
+                {% if review.delete_flag == 0 %}
+                <span class="badge badge-success bg-gradient bg-success px-3 rounded-pill bg-opacity-75 text-sm py-1">Active</span> 
+                {% else %}
+                <span class="badge badge-secondary bg-gradient bg-secondary px-3 rounded-pill bg-opacity-75 text-sm py-1">Deleted</span>
+                {% endif %}
+            </dd>
+        </dl>
+    </div>
+</div>

@@ -377,6 +377,96 @@ def save_sub_category(request):
 
     return HttpResponse(json.dumps(resp), content_type="application/json")
 
+
+@login_required
+def save_review(request):
+    resp = { 'status': 'failed', 'msg' : '' }
+    if request.method == 'POST':
+        post = request.POST
+        form = forms.SaveReview(request.POST) 
+        if form.is_valid():
+            data = form.cleaned_data
+            print(post['id'],"postid")
+            if post['id'] == 'None' or post['id'] == '':
+                create_item('Reviews',data)
+                messages.success(request, "Reviews has been saved successfully.")
+            else:
+                update_item_by_id('Reviews',post['id'],data)
+                messages.success(request, "Reviews has been updated successfully.")
+            resp['status'] = 'success'
+        else:
+            for field in form:
+                for error in field.errors:
+                    if not resp['msg'] == '':
+                        resp['msg'] += str('<br/>')
+                    resp['msg'] += str(f'[{field.name}] {error}')
+    else:
+         resp['msg'] = "There's no data sent on the request"
+
+    return HttpResponse(json.dumps(resp), content_type="application/json")
+
+@login_required
+def view_review(request, pk = None):
+    context = context_data(request)
+    context['page'] = 'view_review'
+    context['page_title'] = 'View Review'
+    if pk is None:
+        context['book'] = {}
+    else:
+        context['book'] = get_item_by_id('Reviews',pk)
+    
+    return render(request, 'view_review.html', context)
+
+@login_required
+def manage_review(request, pk = None):
+    context = context_data(request)
+    context['page'] = 'manage_review'
+    context['page_title'] = 'Manage Review'
+    if pk is None:
+        context['book'] = {}
+    else:
+        context['book'] = get_item_by_id('Reviews',pk)
+    context['book_assigned'] = get_all_items('Books')
+    print(context['book_assigned'])
+    return render(request, 'manage_review.html', context)
+
+@login_required
+def delete_review(request, pk=None):
+    resp = {'status': 'failed', 'msg': ''}
+
+    print(f"Delete request for Review ID: {pk}")  # Debugging: print the ID to be deleted
+    
+    # Check if pk is valid
+    if pk is None or pk == 'None':
+        resp['msg'] = 'Invalid Review ID'
+    else:
+        try:
+            # Delete item from ArangoDB instead of using Django models
+            delete_item_by_id('Reviews', pk)  # Replace Django ORM deletion with ArangoDB function
+            
+            messages.success(request, "Review has been deleted successfully.")
+            resp['status'] = 'success'
+        except Exception as e:
+            print(f"Error while deleting Review: {e}")  # Print exception for better debugging
+            resp['msg'] = "Deleting Review Failed"
+
+    return HttpResponse(json.dumps(resp), content_type="application/json")
+
+def reviews(request):
+    context = context_data(request)
+    context['page'] = 'review'
+    context['page_title'] = "Review List"
+    
+    limit_per_page = 100
+    page_number = request.GET.get('page', 1)  # Get page number dynamically from request
+    offset = (int(page_number) - 1) * limit_per_page
+    
+    listdata = list(get_paginated_data('Reviews', limit_per_page, offset=offset))  # Fetch only once
+    
+    context['books'] = listdata
+    return render(request, 'review.html', context)
+
+
 @login_required
 def view_sub_category(request, pk = None):
     context = context_data(request)

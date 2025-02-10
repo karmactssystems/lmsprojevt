@@ -357,6 +357,27 @@ class StudentForm(forms.Form):
     course = forms.CharField(max_length=250, required=False)
     status = forms.ChoiceField(choices=[('1', 'Active'), ('2', 'Inactive')], initial='1')
 
+from django.utils import timezone
+
+class SaveReview(forms.ModelForm):
+    book_assigned = forms.CharField(max_length=255)
+    review_text = forms.CharField(widget=forms.Textarea)
+    rating = forms.IntegerField(min_value=1, max_value=5)
+    review_date = forms.DateTimeField(initial=timezone.now, widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}))
+    reviewer_name = forms.CharField(max_length=250)
+
+    class Meta:
+        model = models.ReviewModel
+        fields = ('book_assigned', 'review_text', 'rating', 'review_date', 'reviewer_name')
+
+    def clean_book(self):
+        book = self.cleaned_data['book_assigned']
+        return book
+    
+    def clean_review_text(self):
+        review_text = self.cleaned_data['review_text']
+        return review_text
+
 
 class TeacherForm(forms.Form):
     first_name = forms.CharField(max_length=250)

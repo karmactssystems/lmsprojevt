@@ -46,13 +46,22 @@ urlpatterns = [
     path('save_sub_category',views.save_sub_category,name='save-sub_category'),
     path('save_sub_supplier',views.save_supplier,name='save_sub_supplier'),
     
+
+    # path('view_review/', views.review_view, name='review_view'),
+
     path('delete_sub_category/<int:pk>',views.delete_sub_category,name='delete-sub_category'),
     path('books',views.books,name='book-page'),
+    path('reviews', views.reviews, name='review-page'),
     path('manage_book',views.manage_book,name='manage-book'),
+    path('manage_review', views.manage_review,name='manage-review'),
     path('manage_book/<int:pk>',views.manage_book,name='manage-book-pk'),
+    path('manage_review/<int:pk>', views.manage_review,name='manage-review-pk'),
     path('view_book/<int:pk>',views.view_book,name='view-book-pk'),
+    path('view_review/<int:pk>', views.view_review,name='view-review-pk'),
     path('save_book',views.save_book,name='save-book'),
+    path('save_review', views.save_review,name='save-review'),
     path('delete_book/<int:pk>',views.delete_book,name='delete-book'),
+    path('delete_review/<int:pk>', views.delete_review,name='delete-review'),
     path('students',views.students,name='student-page'),
     path('manage_student',views.manage_student,name='manage-student'),
     path('manage_student/<int:pk>',views.manage_student,name='manage-student-pk'),

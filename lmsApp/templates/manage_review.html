@@ -1,0 +1,115 @@
+{% load static %}
+{% load tagger %}
+<style>
+    #book-img {
+        max-width: 100%;
+        max-height: 10em;
+        object-fit: scale-down;
+        object-position: center center;
+    }
+</style>
+<div class="container-fluid">
+    <form action="" id="review-form">
+        <div class="d-none">
+            {% underscoreTag book '_key' as id %}
+        </div>
+        <input type="hidden" name="id" value="{{id}}">
+        
+        <!-- Book Assigned Dropdown -->
+        <div class="mb-3">
+            <label for="book_assigned" class="control-label">Book Assigned</label>
+            <select id="book_assigned" name="book_assigned" class="form-select form-select-sm rounded-0" required>
+                <option disabled selected>Please Select Book</option>
+                {% for book in book_assigned %}
+                    <option value="{{book.title}}" {% if book.title == book_assigned %}selected{% endif %}>{{book.title}}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Review Text -->
+        <div class="mb-3">
+            <label for="review_text" class="control-label">Review Text</label>
+            <textarea id="review_text" name="review_text" rows="4" class="form-control form-control-sm rounded-0" required>{{book.review_text}}</textarea>
+        </div>
+
+        <!-- Rating -->
+        <div class="mb-3">
+            <label for="rating" class="control-label">Rating</label>
+            <input type="number" id="rating" name="rating" class="form-control form-control-sm rounded-0" value="{{book.rating}}" min="1" max="5" required>
+        </div>
+
+        <!-- Review Date -->
+        <div class="mb-3">
+            <label for="review_date" class="control-label">Review Date</label>
+            <input type="datetime-local" id="review_date" name="review_date" class="form-control form-control-sm rounded-0" value="{{book.review_date|date:'Y-m-d\TH:i'}}" required>
+        </div>
+
+        <!-- Reviewer Name -->
+        <div class="mb-3">
+            <label for="reviewer_name" class="control-label">Reviewer Name</label>
+            <input type="text" id="reviewer_name" name="reviewer_name" class="form-control form-control-sm rounded-0" value="{{book.reviewer_name}}" required>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(function() {
+        // Setup Select2 for book assignment
+        $('#uni_modal').on('shown.bs.modal', function() {
+            $('#book_assigned').select2({
+                width: "100%",
+                placeholder: "Please Select Book Here",
+                dropdownParent: $('#uni_modal'),
+                selectionCssClass: "form-control form-control-sm rounded-0"
+            });
+        });
+
+        // Submit form logic
+        $('#review-form').submit(function(e) {
+            e.preventDefault();
+            var _this = $(this);
+            $('.err-msg').remove();
+            var el = $('<div>');
+            el.addClass("alert alert-danger err-msg");
+            el.hide();
+            if (_this[0].checkValidity() == false) {
+                _this[0].reportValidity();
+                return false;
+            }
+            start_loader();
+            $.ajax({
+                headers: {
+                    "X-CSRFToken": '{{csrf_token}}'
+                },
+                url: "{% url 'save-review' %}",
+                data: new FormData($(this)[0]),
+                cache: false,
+                contentType: false,
+                processData: false,
+                method: 'POST',
+                type: 'POST',
+                dataType: 'json',
+                error: err => {
+                    console.log(err);
+                    alert("An error occurred", 'error');
+                    end_loader();
+                },
+                success: function(resp) {
+                    if (typeof resp == 'object' && resp.status == 'success') {
+                        location.reload();
+                    } else if (resp.status == 'failed' && !!resp.msg) {
+                        el.text(resp.msg);
+                    } else {
+                        el.text("An error occurred", 'error');
+                        end_loader();
+                        console.err(resp);
+                    }
+                    _this.prepend(el);
+                    el.show('slow');
+                    $("html, body, .modal").scrollTop(0);
+                    end_loader();
+                }
+            });
+        });
+    });
+</script>

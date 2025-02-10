@@ -60,6 +60,34 @@ class Books(models.Model):
 
     def __str__(self):
         return str(f"{self.isbn} - {self.title}")
+    
+
+class ReviewModel(models.Model):
+    book_assigned = models.CharField(max_length=255)
+    review_text = models.TextField()
+    rating = models.IntegerField()
+    review_date = models.DateTimeField(default = timezone.now)
+    reviewer_name = models.CharField(max_length=250)
+    delete_flag = models.IntegerField(default = 0)
+
+    class Meta:
+        verbose_name_plural = "Book Reviews"
+
+    def __str__(self):
+        return str(f"{self.book_assigned} - {self.reviewer_name} - {self.rating} stars")
+    
+class FeedbackModel(models.Model):
+    review = models.CharField(max_length=255)
+    feedback_text = models.TextField()
+    feedback_date = models.DateTimeField(default = timezone.now)
+    feedback_giver = models.CharField(max_length=250)
+    delete_flag = models.IntegerField(default = 0)
+
+    class Meta:
+        verbose_name_plural = "Feedbacks"
+
+    def __str__(self):
+        return str(f"{self.review} - {self.feedback_giver} - {self.feedback_text}")
 
 
 class Students(models.Model):

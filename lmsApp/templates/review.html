@@ -1,0 +1,181 @@
+{% extends 'base.html' %} {% load static %} {% load tagger %} {% block pageContent %}
+<section class="py-4">
+    <div class="container">
+        <h3 class="fw-bolder text-center">List of Reviews</h3>
+        <center>
+            <hr class="bg-primary opacity-100" style="height:3px" width="5%">
+        </center>
+        <div class="card rounded-0 shadow">
+            <div class="card-body">
+                <div class="container-fluid">
+                    <div class="text-end mb-3">
+                        <button class="btn btn-sm btn-primary rounded-0 bg-gradient-primary" type="button"
+                            id="create_new"><i class="fa fa-plus"></i> Add New</button>
+                    </div>
+                    <table class="table table-bordered table-striped" id="book-tbl">
+                        <colgroup>
+                            <col width="5%">
+                            <col width="15%">
+                            <col width="20%">
+                            <col width="15%">
+                            <col width="20%">
+                            <col width="15%">
+                            <col width="10%">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th class="text-center">#</th>
+                                <th class="text-center">Review Date</th>
+                                <th class="text-center">Book</th>
+                                <th class="text-center">Review Text</th>
+                                <th class="text-center">Reviewer Name</th>
+                                <th class="text-center">Rating</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for book in books %}
+                            <tr>
+                                {% underscoreTag book '_key' as id %}
+                                <td class="text-center">{{ forloop.counter }}</td>
+                                <td>{{ book.review_date}}</td>
+                                <td>
+                                    <div class="lh-1">
+                                        <div>{{ book.book_assigned}}</div>
+                                    </div>
+                                </td>
+                                <td>{{ book.review_text}}</td>
+                                <td>{{ book.reviewer_name }}</td>
+                                <td>{{ book.rating }}</td>
+                                <td class="text-center">
+                                    <div class="dropdown">
+                                        <button class="btn btn-light btn-sm rounded-0 border dropdown-toggle"
+                                            type="button" id="abtn{{id}}" data-bs-toggle="dropdown"
+                                            aria-expanded="false">
+                                            Action
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="abtn{{book.pk}}">
+                                            <li><a class="dropdown-item view-data" href="javascript:void(0)"
+                                                    data-url="{% url 'view-review-pk' id %}"><i
+                                                        class="fa fa-eye text-dark"></i> View</a></li>
+                                            <li><a class="dropdown-item edit-data" href="javascript:void(0)"
+                                                    data-url="{% url 'manage-review-pk' id %}"><i
+                                                        class="fa fa-edit text-primary"></i> Edit</a></li>
+                                            <li><a class="dropdown-item delete-data" href="javascript:void(0)"
+                                                    data-url="{% url 'delete-review' id %}"><i
+                                                        class="fa fa-trash text-danger"></i> Delete</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirm_modal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Error messages will be shown here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirm_delete_button">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock pageContent %} {% block ScriptBlock %}
+<script>
+    $(function () {
+        $('#create_new').click(function () {
+            uni_modal("<i class='fa fa-plus'></i> Add New Book", "{% url 'manage-review' %}", "modal-lg")
+        })
+        $('.edit-data').click(function () {
+            uni_modal("<i class='fa fa-edit'></i> Edit Book Details", $(this).attr('data-url'), "modal-lg")
+        })
+        $('.view-data').click(function () {
+            uni_modal("<i class='fa fa-th-list'></i> Book Details", $(this).attr('data-url'))
+        })
+        $('.delete-data').click(function () {
+            const url = $(this).attr('data-url');
+            console.log(url);
+            $('#confirm_modal').modal('show');
+            $('#confirm_delete_button').data('url', url);  // Store URL in the confirm button
+        });
+
+        $('#confirm_delete_button').click(function () {
+            const url = $(this).data('url');
+            delete_user_info(url);  // Call the delete function
+        });
+        $('.view_image').click(function () {
+            var img = $(this).attr('data-img-url')
+            $('#viewer_modal #img-viewer-field').attr('src', img)
+            $('#viewer_modal').modal('show')
+        })
+        $('.delete-data').click(function () {
+            _conf("Are you sure to delete this Book?", 'delete_review', ["'" + $(this).attr('data-url') + "'"])
+        })
+        $('#book-tbl').find('td, th').addClass('px-2 py-1 align-middle')
+        $('#book-tbl').DataTable({
+            columnDefs: [{
+                orderable: false,
+                targets: [4]
+            }],
+            lengthMenu: [
+                [25, 50, 100, -1],
+                [25, 50, 100, "All"]
+            ]
+        })
+    })
+
+    function delete_user_info(url) {
+        console.log("Delete URL Called:", url);
+        var _this = $('#confirm_modal .modal-body');
+        $('.err-msg').remove();
+        var el = $('<div>');
+        el.addClass("alert alert-danger err-msg");
+        el.hide();
+        start_loader();
+        $.ajax({
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            url: url,
+            method: 'POST',  // Make sure the request method is POST
+            dataType: 'JSON',
+            error: err => {
+                console.log(err);
+                alert("An error occurred.");
+                end_loader();
+            },
+            success: function (resp) {
+                if (resp.status == 'success') {
+                    location.reload();  // Reload the page on success
+                } else if (!!resp.msg) {
+                    el.html(resp.msg);
+                    _this.prepend(el);
+                    el.show();
+                } else {
+                    el.html("An error occurred");
+                    _this.prepend(el);
+                    el.show();
+                }
+                end_loader();
+                $('#confirm_modal').modal('hide');  // Hide the modal after processing
+            }
+        });
+    }
+</script>
+{% endblock ScriptBlock %}
