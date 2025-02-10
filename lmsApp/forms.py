@@ -377,6 +377,24 @@ class SaveReview(forms.ModelForm):
     def clean_review_text(self):
         review_text = self.cleaned_data['review_text']
         return review_text
+    
+class SaveFeedback(forms.ModelForm):
+    teaching_assigned = forms.CharField(max_length=255)
+    feedback_text = forms.CharField(widget=forms.Textarea)
+    feedback_date = forms.DateTimeField(initial=timezone.now, widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}))
+    feedback_giver = forms.CharField(max_length=250)
+
+    class Meta:
+        model = models.FeedbackModel
+        fields = ('teaching_assigned', 'feedback_text', 'feedback_date', 'feedback_giver')
+
+    def clean_teaching_assigned(self):
+        teaching_assigned = self.cleaned_data['teaching_assigned']
+        return teaching_assigned
+    
+    def clean_feedback_text(self):
+        feedback_text = self.cleaned_data['feedback_text']
+        return feedback_text
 
 
 class TeacherForm(forms.Form):

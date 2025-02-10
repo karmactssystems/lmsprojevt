@@ -467,6 +467,98 @@ def reviews(request):
     return render(request, 'review.html', context)
 
 
+
+
+@login_required
+def save_feedback(request):
+    resp = { 'status': 'failed', 'msg' : '' }
+    if request.method == 'POST':
+        post = request.POST
+        form = forms.SaveFeedback(request.POST) 
+        if form.is_valid():
+            data = form.cleaned_data
+            print(post['id'],"postid")
+            if post['id'] == 'None' or post['id'] == '':
+                create_item('Feedbacks',data)
+                messages.success(request, "Feedbacks has been saved successfully.")
+            else:
+                update_item_by_id('Feedbacks',post['id'],data)
+                messages.success(request, "Feedbacks has been updated successfully.")
+            resp['status'] = 'success'
+        else:
+            for field in form:
+                for error in field.errors:
+                    if not resp['msg'] == '':
+                        resp['msg'] += str('<br/>')
+                    resp['msg'] += str(f'[{field.name}] {error}')
+    else:
+         resp['msg'] = "There's no data sent on the request"
+
+    return HttpResponse(json.dumps(resp), content_type="application/json")
+
+
+@login_required
+def view_feedback(request, pk = None):
+    context = context_data(request)
+    context['page'] = 'view_feedback'
+    context['page_title'] = 'View Review'
+    if pk is None:
+        context['book'] = {}
+    else:
+        context['book'] = get_item_by_id('Feedbacks',pk)
+    
+    return render(request, 'view_feedback.html', context)
+
+@login_required
+def manage_feedback(request, pk = None):
+    context = context_data(request)
+    context['page'] = 'manage_feedback'
+    context['page_title'] = 'Manage Feedback'
+    if pk is None:
+        context['book'] = {}
+    else:
+        context['book'] = get_item_by_id('Feedbacks',pk)
+    context['teaching_assigned'] = get_all_items('TeachingMaterial')
+    print(context['teaching_assigned'])
+    return render(request, 'manage_feedback.html', context)
+
+@login_required
+def delete_feedback(request, pk=None):
+    resp = {'status': 'failed', 'msg': ''}
+
+    print(f"Delete request for Feedback ID: {pk}")  # Debugging: print the ID to be deleted
+    
+    # Check if pk is valid
+    if pk is None or pk == 'None':
+        resp['msg'] = 'Invalid Feedback ID'
+    else:
+        try:
+            # Delete item from ArangoDB instead of using Django models
+            delete_item_by_id('Feedbacks', pk)  # Replace Django ORM deletion with ArangoDB function
+            
+            messages.success(request, "Feedback has been deleted successfully.")
+            resp['status'] = 'success'
+        except Exception as e:
+            print(f"Error while deleting Feedback: {e}")  # Print exception for better debugging
+            resp['msg'] = "Deleting Feedback Failed"
+
+    return HttpResponse(json.dumps(resp), content_type="application/json")
+
+def feedback(request):
+    context = context_data(request)
+    context['page'] = 'feedback'
+    context['page_title'] = "Feedback List"
+    
+    limit_per_page = 100
+    page_number = request.GET.get('page', 1)  # Get page number dynamically from request
+    offset = (int(page_number) - 1) * limit_per_page
+    
+    listdata = list(get_paginated_data('Feedbacks', limit_per_page, offset=offset))  # Fetch only once
+    
+    context['books'] = listdata
+    return render(request, 'feedback.html', context)
+
+
 @login_required
 def view_sub_category(request, pk = None):
     context = context_data(request)

@@ -57,6 +57,9 @@
                         <a class="nav-link" aria-current="page" href="{% url 'review-page' %}">Reviews</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="{% url 'feedback-page' %}">Feedbacks</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" aria-current="page" href="{% url 'user-info-page' %}">Users</a>
                     </li>
                     {% if request.user.is_superuser %}
