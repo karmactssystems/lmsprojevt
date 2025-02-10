@@ -23,17 +23,19 @@
             background: white;
             padding: 20px;
             border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        label,
-        input {
+        label {
             display: block;
-            width: 100%;
-            margin-bottom: 10px;
+            font-weight: bold;
+            margin-top: 10px;
         }
 
-        input {
+        input, select, textarea {
+            width: 100%;
             padding: 8px;
+            margin-top: 5px;
             border: 1px solid #ddd;
             border-radius: 5px;
         }
@@ -45,6 +47,8 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
         }
 
         button:hover {
@@ -57,7 +61,19 @@
     <h2>{{ title }}</h2>
     <form method="POST">
         {% csrf_token %}
-        {{ form.as_p }}
+        
+        <label for="review_text">Review Text</label>
+        {{ form.review_text }}
+
+        <label for="rating">Rating</label>
+        {{ form.rating }}
+
+        <label for="reviewer_name">Reviewer Name</label>
+        {{ form.reviewer_name }}
+
+        <label for="reviewed_material">Select Teaching Material</label>
+        {{ form.reviewed_material }}
+        
         <button type="submit">Save</button>
     </form>
 </body>

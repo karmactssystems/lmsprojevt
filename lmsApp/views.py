@@ -1855,30 +1855,59 @@ from .forms import ReviewForm
 from .models import ReviewSchema, TeachingMaterialSchema
 from django.http import Http404
 
-def create_review_neo(request, teaching_uid):
-    # Get the TeachingMaterialSchema node by the passed UID
-    material = TeachingMaterialSchema.nodes.get_or_none(uid=teaching_uid)
+# def create_review_neo(request):
+#     # Get the TeachingMaterialSchema node by the passed UID
 
-    # If the material doesn't exist, raise a 404 error
-    if not material:
-        raise Http404("Teaching material not found.")
+#     # If the material doesn't exist, raise a 404 error
+#     form = ReviewForm(request.POST)
+#     if request.method == 'POST':
+#         if form.is_valid():
+#             # Create the review using the provided data
+#             review = ReviewSchema(
+#                 review_text=form.cleaned_data['review_text'],
+#                 rating=form.cleaned_data['rating'],
+#                 reviewer_name=form.cleaned_data['reviewer_name'],
+#             )
+#             review.save()  # Save the review in Neo4j
+#             return redirect('review_list_neo')  # Redirect to the review list
+#     return render(request, 'create_review_neo.html', {'form': form, 'title': 'Create Review'})
+def get_teaching_materials_options():
+    """ Fetch teaching material names from CouchDB. """
+    couch = couchdb.Server(settings.COUCHDB_DATABASE7["HOST"])
+    couch.resource.credentials = (settings.COUCHDB_DATABASE7["USER"], settings.COUCHDB_DATABASE7["PASSWORD"])
+    db = couch[settings.COUCHDB_DATABASE7["NAME"]]
+
+    materials = []
+    for doc_id in db:
+        doc = db[doc_id]
+        if "name" in doc:  # Ensure 'name' exists in the document
+            materials.append({"id": doc_id, "name": doc["name"]})
+    print("Fetched Materials:", materials)
+    return materials
+
+def create_review_neo(request):
+    teaching_materials = get_teaching_materials_options()  # Fetch material names
+    print("Teaching Materials:", teaching_materials)  # Debugging Output
 
     if request.method == 'POST':
-        form = ReviewForm(request.POST)
+        form = ReviewForm(request.POST, materials=teaching_materials)  # Pass materials here
         if form.is_valid():
-            # Create the review using the provided data
             review = ReviewSchema(
                 review_text=form.cleaned_data['review_text'],
                 rating=form.cleaned_data['rating'],
                 reviewer_name=form.cleaned_data['reviewer_name'],
-                reviewed_material=material  # Associate the review with the teaching material
+                reviewed_material=form.cleaned_data['reviewed_material']
             )
             review.save()  # Save the review in Neo4j
-            return redirect('review_list_neo')  # Redirect to the review list
+            return redirect('review_list_neo')
     else:
-        form = ReviewForm(initial={'reviewed_material_uid': teaching_uid})  # Set the hidden field value
+        form = ReviewForm(materials=teaching_materials)  # ✅ Pass materials here
 
-    return render(request, 'create_review_neo.html', {'form': form, 'title': 'Create Review', 'material': material})
+    return render(request, 'create_review_neo.html', {
+        'form': form,
+        'title': 'Create Review'
+    })
+
 
 
 
@@ -1891,25 +1920,44 @@ def review_list_neo(request):
 
 
 # Update review
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import Http404
+
 def update_review_neo(request, review_uid):
-    review = get_object_or_404(ReviewSchema, uid=review_uid)
+    try:
+        review = ReviewSchema.nodes.get(uid=review_uid)  # Corrected way to fetch
+    except ReviewSchema.DoesNotExist:
+        raise Http404("Review not found")
 
     if request.method == 'POST':
-        form = ReviewForm(request.POST, instance=review)
+        form = ReviewForm(request.POST, initial={  # Populate with existing data
+            'review_text': review.review_text,
+            'rating': review.rating,
+            'reviewer_name': review.reviewer_name,
+            'reviewed_material': review.reviewed_material
+        })
         if form.is_valid():
-            form.save()
-            return redirect('review_list_neo')  # Redirect to the review list
+            review.review_text = form.cleaned_data['review_text']
+            review.rating = form.cleaned_data['rating']
+            review.reviewer_name = form.cleaned_data['reviewer_name']
+            review.reviewed_material = form.cleaned_data['reviewed_material']
+            review.save()
+            return redirect('review_list_neo')  
     else:
-        form = ReviewForm(instance=review)
+        form = ReviewForm(initial={  # Prefill form for GET request
+            'review_text': review.review_text,
+            'rating': review.rating,
+            'reviewer_name': review.reviewer_name,
+            'reviewed_material': review.reviewed_material
+        })
 
     return render(request, 'create_review_neo.html', {'form': form, 'title': 'Update Review'})
 
 def delete_review_neo(request, review_uid):
-    material = ReviewSchema.nodes.get_or_none(uid=review_uid)
-    if material:
-        material.delete_flag = 1  # Soft delete instead of removing from DB
-        material.save()
-    return redirect('teaching_material_list_neo')
+    review = ReviewSchema.nodes.get_or_none(uid=review_uid)
+    if review:
+        review.delete()  # Hard delete; change this if soft delete is needed
+    return redirect('review_list_neo')
 
 
 

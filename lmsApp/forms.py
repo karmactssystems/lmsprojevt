@@ -505,12 +505,26 @@ class TeachingMaterialForm(forms.Form):
 
 # forms.py
 
+# class ReviewForm(forms.Form):
+#     review_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control'}), required=True)
+#     rating = forms.IntegerField(min_value=1, max_value=5, widget=forms.NumberInput(attrs={'class': 'form-control'}), required=True)
+#     reviewer_name = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control'}), required=True)
+#     reviewed_material = forms.CharField(widget=forms.HiddenInput(), required=True)  # Hidden field for material UID
+
 class ReviewForm(forms.Form):
     review_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control'}), required=True)
     rating = forms.IntegerField(min_value=1, max_value=5, widget=forms.NumberInput(attrs={'class': 'form-control'}), required=True)
     reviewer_name = forms.CharField(max_length=255, widget=forms.TextInput(attrs={'class': 'form-control'}), required=True)
-    reviewed_material = forms.CharField(widget=forms.HiddenInput(), required=True)  # Hidden field for material UID
 
+    # Dropdown for Teaching Materials
+    reviewed_material = forms.ChoiceField(choices=[], widget=forms.Select(attrs={'class': 'form-control'}), required=True)
+
+    def __init__(self, *args, **kwargs):
+        materials = kwargs.pop('materials', [])  # Fetch materials passed from the view
+        super().__init__(*args, **kwargs)
+        self.fields['reviewed_material'].choices = [(m['id'], m['name']) for m in materials]
+
+        print("Dropdown Choices Set:", self.fields['reviewed_material'].choices)  # Debugging Output
 
 class FeedbackForm(forms.Form):
     feedback_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control'}), required=True)
